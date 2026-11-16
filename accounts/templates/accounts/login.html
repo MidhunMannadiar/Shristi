@@ -1,0 +1,112 @@
+
+{% load static %}
+{% load socialaccount %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login | Shristi</title>
+
+    <link rel="stylesheet" href="{% static 'accounts/css/authentication.css' %}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+
+<body>
+
+    <main class="auth-page">
+
+        <section class="auth-form-section">
+
+            <div class="auth-form-container">
+
+                <div class="auth-logo">
+                    <h2>Shristi</h2>
+                    <span>WELCOME BACK</span>
+                </div>
+{% if messages %}
+    <div class="login-messages">
+        {% for message in messages %}
+            <div class="login-message {{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+                <div class="auth-heading">
+                    <h1>Welcome Back</h1>
+                    <p>Login to continue exploring beautiful handmade creations.</p>
+                </div>
+
+                <form method="POST">
+
+                    {% csrf_token %}
+
+                    <div class="auth-input-group">
+                        <label for="email">Email Address</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Enter your email address"
+                            required
+                        >
+                    </div>
+
+                    <div class="auth-input-group">
+                        <label for="password">Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            required
+                        >
+                    </div>
+
+                    <div class="auth-forgot-link">
+                        <a href="{% url 'accounts:forgot_password' %}">
+                            Forgot Password?
+                        </a>
+                    </div>
+
+                    <button type="submit" class="auth-primary-button">
+                        Login
+                    </button>
+
+                </form>
+
+                <div class="auth-divider">
+                    <span>OR</span>
+                </div>
+
+                <form method="POST" action="{% provider_login_url 'google' %}">
+    {% csrf_token %}
+
+    <button type="submit" class="google-auth-button">
+        <i class="fa-brands fa-google"></i>
+        Continue with Google
+    </button>
+</form>
+
+                <div class="auth-switch-link">
+                    <p>
+                        Don't have an account?
+                        <a href="{% url 'accounts:customer_signup' %}">
+                            Create Account
+                        </a>
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+</html>

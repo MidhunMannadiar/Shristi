@@ -1,0 +1,220 @@
+
+{% extends "storefront/base.html" %}
+{% load static %}
+
+{% block title %}Home | Shristi{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner -->
+<section class="hero-banner">
+
+    <div class="hero-content">
+
+        <p class="hero-eyebrow">HANDCRAFTED WITH LOVE</p>
+
+        <h1>
+            Crafted by Hands.<br>
+            Made for Your Home.
+        </h1>
+
+        <p class="hero-description">
+            Discover thoughtfully handcrafted pieces that bring
+            warmth, character and timeless beauty into your space.
+        </p>
+
+        <a href="{% url 'storefront:shop' %}" class="hero-button">
+            Explore Collection
+            <span aria-hidden="true">→</span>
+        </a>
+
+    </div>
+
+</section>
+
+<!-- Why Choose Shristi -->
+<section class="why-shristi">
+
+    <div class="why-shristi-container">
+
+        <div class="feature-item">
+            <div class="feature-icon">
+                <i class="fa-solid fa-hand-holding-heart"></i>
+            </div>
+            <h3>Handcrafted Quality</h3>
+            <p>Carefully crafted with attention to detail.</p>
+        </div>
+
+        <div class="feature-item">
+            <div class="feature-icon">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <h3>Unique Designs</h3>
+            <p>Distinctive pieces that bring character to your home.</p>
+        </div>
+
+        <div class="feature-item">
+            <div class="feature-icon">
+                <i class="fa-solid fa-gem"></i>
+            </div>
+            <h3>Quality Materials</h3>
+            <p>Thoughtful selection of quality materials.</p>
+        </div>
+
+        <div class="feature-item">
+            <div class="feature-icon">
+                <i class="fa-solid fa-box-open"></i>
+            </div>
+            <h3>Thoughtful Packaging</h3>
+            <p>Carefully presented for every order.</p>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ================= SHOP BY CATEGORY ================= -->
+
+<section class="home-categories">
+
+    <div class="categories-heading">
+        <p class="section-eyebrow">EXPLORE OUR COLLECTION</p>
+        <h2>Shop by Category</h2>
+        <p>Discover handcrafted pieces made to bring beauty into your home.</p>
+    </div>
+
+    <div class="categories-grid">
+
+        
+{% for category in categories %}
+
+    <a href="{% url 'storefront:shop' %}?category={{ category.id }}"
+       class="category-card"
+       style="text-decoration: none; color: inherit;">
+
+        <div class="category-image">
+
+            {% if category.image %}
+                <img src="{{ category.image.url }}"
+                     alt="{{ category.name }}">
+            {% else %}
+                <div class="category-image-placeholder">
+                    <span>No Image Available</span>
+                </div>
+            {% endif %}
+
+        </div>
+
+        <div class="category-info">
+
+            <h3>{{ category.name }}</h3>
+
+            <p>
+                {{ category.description|default:"Explore our handcrafted collection."|truncatewords:12 }}
+            </p>
+
+            <span class="category-button">
+                Explore
+                <span aria-hidden="true">→</span>
+            </span>
+
+        </div>
+
+    </a>
+
+{% empty %}
+
+    <p class="no-categories">
+        Categories will be available soon.
+    </p>
+
+{% endfor %}
+
+
+    </div>
+
+    <div class="view-all-categories">
+        <a href="{% url 'storefront:shop' %}" class="view-all-button">
+            View All Categories
+            <span aria-hidden="true">→</span>
+        </a>
+    </div>
+
+</section>
+
+<!-- ================= CONTACT SECTION ================= -->
+
+<section class="home-contact" id="contact">
+
+    <div class="contact-container">
+
+        <div class="contact-heading">
+            <p class="contact-eyebrow">WE'D LOVE TO HEAR FROM YOU</p>
+
+            <h2>Get in Touch</h2>
+
+            <p class="contact-description">
+                Have a question or need assistance?
+                Send us a message. We're always happy to help.
+            </p>
+        </div>
+
+        <form class="contact-form">
+
+            <div class="form-row">
+
+                <div class="form-group">
+                    <label for="contactName">Your Name</label>
+                    <input
+                        type="text"
+                        id="contactName"
+                        name="name"
+                        placeholder="Enter your name"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="contactEmail">Email Address</label>
+                    <input
+                        type="email"
+                        id="contactEmail"
+                        name="email"
+                        placeholder="Enter your email"
+                    >
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label for="contactSubject">Subject</label>
+                <input
+                    type="text"
+                    id="contactSubject"
+                    name="subject"
+                    placeholder="What is your message about?"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="contactMessage">Message</label>
+                <textarea
+                    id="contactMessage"
+                    name="message"
+                    rows="5"
+                    placeholder="Write your message here..."
+                ></textarea>
+            </div>
+
+            <button type="submit" class="contact-button">
+                Send Message
+                <span aria-hidden="true">→</span>
+            </button>
+
+        </form>
+
+    </div>
+
+</section>
+
+
+{% endblock %}

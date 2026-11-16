@@ -1,0 +1,86 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Verify OTP | Shristi</title>
+
+    <link rel="stylesheet" href="{% static 'accounts/css/authentication.css' %}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+
+<body>
+
+    <main class="auth-page">
+
+        <section class="auth-form-section">
+
+            <div class="auth-form-container">
+
+                <div class="auth-logo">
+                    <h2>Shristi</h2>
+                    <span>EMAIL VERIFICATION</span>
+                </div>
+
+                <div class="auth-heading">
+                    <h1>Verify Your Email</h1>
+                    <p>
+                        We've sent a 6-digit verification code to your email address.
+                        Please enter the code below.
+                    </p>
+                </div>
+
+                <form method="POST">
+
+                    {% csrf_token %}
+
+                    <div class="auth-input-group">
+                        <label for="otp">Verification Code</label>
+
+                        <input
+                            type="text"
+                            id="otp"
+                            name="otp"
+                            placeholder="Enter your 6-digit code"
+                            maxlength="6"
+                            inputmode="numeric"
+                            pattern="[0-9]{6}"
+                            autocomplete="one-time-code"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="auth-primary-button">
+                        Verify Code
+                    </button>
+
+                </form>
+
+                <div class="auth-resend-section">
+                    <p>Didn't receive the code?</p>
+                    <button type="button" class="auth-resend-button" disabled>
+                        Resend Code in 60 seconds
+                    </button>
+                </div>
+
+                <div class="auth-switch-link">
+                    <a href="{% url 'accounts:customer_signup' %}">
+                        Back to Signup
+                    </a>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+</html>

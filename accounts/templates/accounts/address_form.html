@@ -1,0 +1,126 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ page_title }} | Shristi</title>
+
+    <link rel="stylesheet" href="{% static 'accounts/css/address.css' %}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<header class="address-header">
+    <a href="{% url 'storefront:home' %}" class="brand-logo">
+        Shristi
+    </a>
+
+    <a href="{% url 'accounts:address_list' %}" class="back-link">
+        Back to Addresses
+    </a>
+</header>
+
+
+<main class="address-page">
+
+    <div class="address-form-container">
+
+        <div class="address-heading">
+            <div>
+                <span>MY ACCOUNT</span>
+                <h1>{{ page_title }}</h1>
+                <p>Enter your delivery address details.</p>
+            </div>
+        </div>
+
+
+        {% if messages %}
+            <div class="address-messages">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+
+        <form method="POST" class="address-form">
+
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="form-errors">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+
+            <div class="address-form-grid">
+
+                {% for field in form %}
+
+                    {% if field.name == "is_default" %}
+
+                        <div class="address-checkbox-group">
+                            {{ field }}
+                            <label for="{{ field.id_for_label }}">
+                                Set as default delivery address
+                            </label>
+
+                            {% for error in field.errors %}
+                                <small class="field-error">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+
+                    {% else %}
+
+                        <div class="address-field">
+
+                            <label for="{{ field.id_for_label }}">
+                                {{ field.label }}
+                            </label>
+
+                            {{ field }}
+
+                            {% if field.help_text %}
+                                <small>{{ field.help_text }}</small>
+                            {% endif %}
+
+                            {% for error in field.errors %}
+                                <small class="field-error">{{ error }}</small>
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                {% endfor %}
+
+            </div>
+
+
+            <div class="address-form-actions">
+
+                <a href="{% url 'accounts:address_list' %}" class="cancel-address-button">
+                    Cancel
+                </a>
+
+                <button type="submit" class="save-address-button">
+                    {{ button_text }}
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</main>
+
+</body>
+</html>

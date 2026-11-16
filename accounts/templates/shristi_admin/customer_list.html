@@ -1,0 +1,220 @@
+
+{% extends "shristi_admin/base.html" %}
+
+{% block title %}Customers | Shristi Admin{% endblock %}
+
+{% block content %}
+
+<section class="customer-page">
+
+    <!-- Page Heading -->
+    <div class="customer-page-header">
+        <div>
+            <span class="customer-eyebrow">CUSTOMER MANAGEMENT</span>
+            <h1>Customers</h1>
+            <p>View and manage all registered Shristi customers.</p>
+            <a href="{% url 'accounts:customer_create' %}"
+   class="customer-add-btn">
+    + Add Customer
+</a>
+        </div>
+    </div>
+
+    <!-- Customer Summary -->
+    <div class="customer-summary">
+        <div>
+            <span>Total Customers</span>
+            <h2>{{ page_obj.paginator.count }}</h2>
+        </div>
+        <div class="customer-summary-icon">♙</div>
+    </div>
+
+    <!-- Customer Content -->
+    <div class="customer-content-card">
+
+        <!-- Search and Filters -->
+        <form method="GET" class="customer-filter-form">
+
+            <div class="customer-search">
+                <span>⌕</span>
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="Search by name or email..."
+                    value="{{ search_query }}"
+                >
+            </div>
+
+            <select name="status" class="customer-filter-select">
+                <option value="all" {% if status_filter == "all" %}selected{% endif %}>
+                    All Customers
+                </option>
+                <option value="active" {% if status_filter == "active" %}selected{% endif %}>
+                    Active
+                </option>
+                <option value="blocked" {% if status_filter == "blocked" %}selected{% endif %}>
+                    Blocked
+                </option>
+            </select>
+
+            <select name="sort" class="customer-filter-select">
+                <option value="-date_joined" {% if sort_by == "-date_joined" %}selected{% endif %}>
+                    Newest First
+                </option>
+                <option value="date_joined" {% if sort_by == "date_joined" %}selected{% endif %}>
+                    Oldest First
+                </option>
+                <option value="full_name" {% if sort_by == "full_name" %}selected{% endif %}>
+                    Name A-Z
+                </option>
+                <option value="-full_name" {% if sort_by == "-full_name" %}selected{% endif %}>
+                    Name Z-A
+                </option>
+                <option value="email" {% if sort_by == "email" %}selected{% endif %}>
+                    Email A-Z
+                </option>
+                <option value="-email" {% if sort_by == "-email" %}selected{% endif %}>
+                    Email Z-A
+                </option>
+            </select>
+
+            <select name="page_size" class="customer-filter-select">
+                <option value="10" {% if page_size == "10" %}selected{% endif %}>10 per page</option>
+                <option value="25" {% if page_size == "25" %}selected{% endif %}>25 per page</option>
+                <option value="50" {% if page_size == "50" %}selected{% endif %}>50 per page</option>
+                <option value="100" {% if page_size == "100" %}selected{% endif %}>100 per page</option>
+            </select>
+
+            <button type="submit" class="customer-filter-btn">Apply</button>
+
+            <a href="{% url 'accounts:customer_list' %}" class="customer-reset-btn">
+                Reset
+            </a>
+
+        </form>
+
+        <!-- Customer Table -->
+        <div class="customer-table-wrapper">
+
+            <table class="customer-table">
+
+                <thead>
+                    <tr>
+                        <th>CUSTOMER</th>
+                        <th>EMAIL ADDRESS</th>
+                        <th>DATE JOINED</th>
+                        <th>STATUS</th>
+                        <th>ACTION</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for customer in customers %}
+
+                    <tr>
+                        <td>
+                            <div class="customer-info">
+
+                                {% if customer.profile_image %}
+                                    <img
+                                        src="{{ customer.profile_image.url }}"
+                                        alt="{{ customer.full_name }}"
+                                        class="customer-avatar"
+                                    >
+                                {% else %}
+                                    <div class="customer-avatar-placeholder">
+                                        {{ customer.full_name|default:customer.email|first|upper }}
+                                    </div>
+                                {% endif %}
+
+                                <div class="customer-name">
+                                    <strong>
+                                        {{ customer.full_name|default:"Customer" }}
+                                    </strong>
+                                    <span>Customer #{{ customer.id }}</span>
+                                </div>
+
+                            </div>
+                        </td>
+
+                        <td>{{ customer.email }}</td>
+
+                        <td>{{ customer.date_joined|date:"d M Y" }}</td>
+
+                        <td>
+                            {% if customer.is_active %}
+                                <span class="customer-status status-active">
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="customer-status status-blocked">
+                                    Blocked
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <a href="{% url 'accounts:customer_detail' customer.id %}" class="customer-action-btn">
+                                View Details →
+                            </a>
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="5">
+                            <div class="customer-empty-state">
+                                <div>♙</div>
+                                <h3>No Customers Found</h3>
+                                <p>Try changing your search or filter.</p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.paginator.num_pages > 1 %}
+
+        <div class="customer-pagination">
+
+            <span>
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            <div class="customer-pagination-controls">
+
+                {% if page_obj.has_previous %}
+                    <a href="?search={{ search_query|urlencode }}&status={{ status_filter }}&sort={{ sort_by }}&page_size={{ page_size }}&page={{ page_obj.previous_page_number }}">
+                        Previous
+                    </a>
+                {% else %}
+                    <span class="pagination-disabled">Previous</span>
+                {% endif %}
+
+                {% if page_obj.has_next %}
+                    <a href="?search={{ search_query|urlencode }}&status={{ status_filter }}&sort={{ sort_by }}&page_size={{ page_size }}&page={{ page_obj.next_page_number }}">
+                        Next
+                    </a>
+                {% else %}
+                    <span class="pagination-disabled">Next</span>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+{% endblock %}

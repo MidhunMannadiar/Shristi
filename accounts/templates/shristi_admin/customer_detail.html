@@ -1,0 +1,199 @@
+
+{% extends "shristi_admin/base.html" %}
+{% load static %}
+
+{% block title %}Customer Details | Shristi Admin{% endblock %}
+
+{% block content %}
+
+<div class="customer-detail-page">
+
+    <div class="customer-detail-header">
+        <div>
+            <span class="section-eyebrow">CUSTOMER MANAGEMENT</span>
+            <h1>Customer Details</h1>
+            <p>View customer account information and saved addresses.</p>
+        </div>
+
+        <a href="{% url 'accounts:customer_list' %}" class="customer-back-btn">
+            ← Back to Customers
+        </a>
+    </div>
+
+    <div class="customer-detail-card">
+
+        <div class="customer-profile-section">
+
+            {% if customer.profile_image %}
+                <img
+                    src="{{ customer.profile_image.url }}"
+                    alt="{{ customer.full_name }}"
+                    class="customer-detail-avatar"
+                >
+            {% else %}
+                <div class="customer-detail-avatar-placeholder">
+                    {{ customer.full_name|default:customer.email|first|upper }}
+                </div>
+            {% endif %}
+
+            <div class="customer-profile-info">
+                <h2>{{ customer.full_name|default:"Customer" }}</h2>
+                <p>{{ customer.email }}</p>
+
+                {% if customer.is_active %}
+                    <span class="customer-status active">Active</span>
+                {% else %}
+                    <span class="customer-status blocked">Blocked</span>
+                {% endif %}
+            </div>
+            <div class="customer-status-actions">
+
+                {% if customer.is_active %}
+
+                    <a
+                        href="{% url 'accounts:customer_status' customer.id 'block' %}"
+                        class="customer-block-btn"
+                    >
+                        Block Customer
+                    </a>
+
+                {% else %}
+
+                    <a
+                        href="{% url 'accounts:customer_status' customer.id 'unblock' %}"
+                        class="customer-unblock-btn"
+                    >
+                        Unblock Customer
+                    </a>
+
+                {% endif %}
+                    <a href="{% url 'accounts:customer_update' customer.id %}"
+   class="customer-edit-btn">
+    Edit Customer
+</a>
+
+<a href="{% url 'accounts:customer_delete' customer.id %}"
+   class="customer-delete-btn">
+    Delete Customer
+</a>
+            </div>
+
+        </div>
+
+        <div class="customer-detail-divider"></div>
+
+        <div class="customer-information">
+            <h3>Account Information</h3>
+
+            <div class="customer-information-grid">
+
+                <div class="customer-information-item">
+                    <span>Customer ID</span>
+                    <strong>#{{ customer.id }}</strong>
+                </div>
+
+                <div class="customer-information-item">
+                    <span>Full Name</span>
+                    <strong>{{ customer.full_name|default:"Not provided" }}</strong>
+                </div>
+
+                <div class="customer-information-item">
+                    <span>Email Address</span>
+                    <strong>{{ customer.email }}</strong>
+                </div>
+
+                <div class="customer-information-item">
+                    <span>Date Joined</span>
+                    <strong>{{ customer.date_joined|date:"d M Y, h:i A" }}</strong>
+                </div>
+
+                <div class="customer-information-item">
+                    <span>Account Status</span>
+                    <strong>
+                        {% if customer.is_active %}Active{% else %}Blocked{% endif %}
+                    </strong>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="customer-detail-divider"></div>
+
+        
+<div class="customer-address-section">
+
+    <div class="customer-address-header">
+
+        <h2>Saved Addresses</h2>
+
+        <a href="{% url 'accounts:admin_customer_address_create' customer.id %}"
+           class="customer-add-btn">
+            + Add Address
+        </a>
+
+    </div>
+
+    {% for address in customer.addresses.all %}
+
+        <div class="customer-address-card">
+
+            <div class="customer-address-card-header">
+
+                <h3>{{ address.full_name }}</h3>
+
+                {% if address.is_default %}
+                    <span class="customer-default-badge">
+                        Default Address
+                    </span>
+                {% endif %}
+
+            </div>
+
+            <p>{{ address.phone_number }}</p>
+
+            <p>{{ address.address_line }}</p>
+
+            {% if address.landmark %}
+                <p>{{ address.landmark }}</p>
+            {% endif %}
+
+            <p>
+                {{ address.city }},
+                {{ address.state }} -
+                {{ address.pincode }}
+            </p>
+
+            <p>{{ address.get_address_type_display }}</p>
+
+            <div class="customer-address-actions">
+
+                <a href="{% url 'accounts:admin_customer_address_update' customer.id address.id %}"
+                   class="customer-edit-btn">
+                    Edit Address
+                </a>
+
+                <a href="{% url 'accounts:admin_customer_address_delete' customer.id address.id %}"
+                   class="customer-delete-btn">
+                    Delete Address
+                </a>
+
+            </div>
+
+        </div>
+
+    {% empty %}
+
+        <p class="customer-no-address">
+            This customer has not added any addresses yet.
+        </p>
+
+    {% endfor %}
+
+</div>
+
+
+    </div>
+
+</div>
+
+{% endblock %}

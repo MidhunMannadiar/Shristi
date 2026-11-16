@@ -1,0 +1,585 @@
+
+/* ================================
+   SHRISTI PROFILE PAGE
+================================ */
+
+:root {
+    --ivory: #F8F6F1;
+    --cream: #F1EDE5;
+    --sand: #E3D8C8;
+    --taupe: #A89580;
+    --brown: #755B46;
+    --dark-brown: #49382C;
+    --ink: #29231F;
+    --white: #FFFFFF;
+    --danger: #B4534B;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--ivory);
+    color: var(--ink);
+    font-family: 'Jost', sans-serif;
+}
+
+
+/* ================================
+   HEADER
+================================ */
+
+.profile-header {
+    width: 100%;
+    height: 85px;
+    padding: 0 8%;
+    background: var(--white);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-bottom: 1px solid var(--sand);
+}
+
+.brand-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--dark-brown);
+    text-decoration: none;
+}
+
+.back-home {
+    color: var(--brown);
+    text-decoration: none;
+    font-size: 14px;
+
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    transition: 0.3s;
+}
+
+.back-home:hover {
+    color: var(--dark-brown);
+}
+
+
+/* ================================
+   PROFILE PAGE
+================================ */
+
+.profile-page {
+    min-height: calc(100vh - 85px);
+    padding: 65px 20px;
+}
+
+.profile-container {
+    max-width: 850px;
+    margin: auto;
+}
+
+
+/* ================================
+   PAGE HEADING
+================================ */
+
+.page-heading {
+    margin-bottom: 30px;
+}
+
+.page-heading span {
+    color: var(--taupe);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+}
+
+.page-heading h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 42px;
+    font-weight: 600;
+    color: var(--dark-brown);
+    margin-top: 8px;
+}
+
+.page-heading p {
+    color: #82766C;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+
+/* ================================
+   PROFILE CARD
+================================ */
+
+.profile-card {
+    background: var(--white);
+    border: 1px solid var(--sand);
+    border-radius: 8px;
+    padding: 40px 45px;
+}
+
+
+/* ================================
+   PROFILE TOP
+================================ */
+
+.profile-top {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+.profile-avatar {
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+
+    background: var(--cream);
+    color: var(--brown);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 30px;
+}
+
+.profile-welcome span {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--taupe);
+}
+
+.profile-welcome h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 27px;
+    font-weight: 600;
+    color: var(--dark-brown);
+    margin: 5px 0;
+}
+
+.profile-welcome p {
+    font-size: 13px;
+    color: #82766C;
+}
+
+
+/* ================================
+   DIVIDER
+================================ */
+
+.profile-divider {
+    height: 1px;
+    background: var(--cream);
+    margin: 30px 0;
+}
+
+
+/* ================================
+   PROFILE INFORMATION
+================================ */
+
+.profile-section {
+    width: 100%;
+}
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 25px;
+}
+
+.section-heading h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 23px;
+    color: var(--dark-brown);
+    font-weight: 600;
+}
+
+.section-heading i {
+    color: var(--taupe);
+    font-size: 18px;
+}
+
+.information-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+
+.information-item label {
+    display: block;
+    color: var(--taupe);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-bottom: 9px;
+    text-transform: uppercase;
+}
+
+.information-item p {
+    font-size: 15px;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+}
+
+
+/* ================================
+   ACCOUNT STATUS
+================================ */
+
+.account-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.account-status span {
+    width: 8px;
+    height: 8px;
+    background: #4C9A67;
+    border-radius: 50%;
+}
+
+
+/* ================================
+   LOGOUT SECTION
+================================ */
+
+.logout-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.logout-description h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 23px;
+    color: var(--dark-brown);
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.logout-description p {
+    color: #82766C;
+    font-size: 13px;
+}
+
+.logout-button {
+    padding: 12px 22px;
+    border: 1px solid var(--danger);
+    border-radius: 4px;
+
+    background: transparent;
+    color: var(--danger);
+
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    transition: 0.3s;
+}
+
+.logout-button:hover {
+    background: var(--danger);
+    color: var(--white);
+}
+
+
+/* ================================
+   FOOTER
+================================ */
+
+.profile-footer {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.profile-footer p {
+    color: var(--taupe);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+}
+
+
+/* ================================
+   RESPONSIVE DESIGN
+================================ */
+
+@media (max-width: 600px) {
+
+    .profile-header {
+        height: 70px;
+        padding: 0 5%;
+    }
+
+    .brand-logo {
+        font-size: 29px;
+    }
+
+    .back-home {
+        font-size: 12px;
+    }
+
+    .profile-page {
+        padding: 40px 15px;
+    }
+
+    .page-heading h1 {
+        font-size: 35px;
+    }
+
+    .profile-card {
+        padding: 25px 20px;
+    }
+
+    .profile-top {
+        gap: 15px;
+    }
+
+    .profile-avatar {
+        width: 62px;
+        height: 62px;
+        font-size: 24px;
+    }
+
+    .profile-welcome h2 {
+        font-size: 22px;
+        overflow-wrap: anywhere;
+    }
+
+    .information-group {
+        grid-template-columns: 1fr;
+        gap: 22px;
+    }
+
+    .logout-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+}
+
+
+
+/* EDIT PROFILE PAGE */
+
+.edit-image-section {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    margin-bottom: 35px;
+}
+
+.edit-profile-image,
+.edit-profile-placeholder {
+    width: 105px;
+    height: 105px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.edit-profile-placeholder {
+    background: var(--cream);
+    color: var(--brown);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+}
+
+.image-upload label,
+.edit-form-group label {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--dark-brown);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.image-upload input {
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+}
+
+.image-upload p,
+.edit-form-group p {
+    color: var(--taupe);
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+.edit-form-group {
+    margin-bottom: 25px;
+}
+
+.edit-form-group input {
+    width: 100%;
+    padding: 14px 15px;
+    border: 1px solid var(--sand);
+    border-radius: 4px;
+    background: var(--ivory);
+    color: var(--ink);
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    outline: none;
+}
+
+.edit-form-group input:focus {
+    border-color: var(--brown);
+}
+
+.edit-form-group input[readonly] {
+    background: var(--cream);
+    cursor: not-allowed;
+}
+
+.edit-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
+    margin-top: 35px;
+}
+
+.cancel-edit-button,
+.save-profile-button {
+    padding: 12px 25px;
+    border-radius: 4px;
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.cancel-edit-button {
+    border: 1px solid var(--sand);
+    color: var(--dark-brown);
+    background: transparent;
+}
+
+.save-profile-button {
+    border: 1px solid var(--dark-brown);
+    color: white;
+    background: var(--dark-brown);
+}
+
+.save-profile-button:hover {
+    background: var(--brown);
+}
+
+@media (max-width: 600px) {
+    .edit-image-section {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .edit-form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .cancel-edit-button,
+    .save-profile-button {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+.edit-profile-link {
+    color: var(--brown);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.edit-profile-link:hover {
+    color: var(--dark-brown);
+    text-decoration: underline;
+}
+
+
+
+.profile-avatar {
+    width: 90px;
+    height: 90px;
+    min-width: 90px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--cream);
+    color: var(--brown);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+
+/* ================================
+   PASSWORD & SECURITY
+================================ */
+
+.security-description {
+    color: #82766C;
+    font-size: 13px;
+    margin-bottom: 18px;
+}
+
+
+/* ================================
+   PROFILE MESSAGES
+================================ */
+
+.profile-messages {
+    margin-bottom: 22px;
+}
+
+.profile-message {
+    padding: 13px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.profile-message.success {
+    background: #EAF4EC;
+    color: #367348;
+    border: 1px solid #C8E2CF;
+}
+
+.profile-message.error {
+    background: #FBEDEC;
+    color: #A3443D;
+    border: 1px solid #EBCBC8;
+}
+
+.profile-message.warning {
+    background: #FFF5E5;
+    color: #916A29;
+    border: 1px solid #EAD9B9;
+}

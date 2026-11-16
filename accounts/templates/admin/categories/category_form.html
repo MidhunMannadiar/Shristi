@@ -1,0 +1,76 @@
+
+{% extends "shristi_admin/base.html" %}
+
+{% block title %}{{ page_title }} | Shristi{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div>
+        <h1>{{ page_title }}</h1>
+        <p>Add or update your product category information.</p>
+    </div>
+
+    <a href="{% url 'products:category_list' %}" class="btn-secondary">
+        Back to Categories
+    </a>
+</div>
+
+<div class="category-form-container">
+
+    <form method="POST" enctype="multipart/form-data">
+
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="form-errors">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="form-group">
+            {{ form.name.label_tag }}
+            {{ form.name }}
+            {{ form.name.errors }}
+        </div>
+
+        <div class="form-group">
+            {{ form.description.label_tag }}
+            {{ form.description }}
+            {{ form.description.errors }}
+        </div>
+
+        <div class="form-group">
+            {{ form.image.label_tag }}
+            {{ form.image }}
+            {{ form.image.errors }}
+
+            {% if category.image %}
+                <p>Current image:</p>
+                <img
+                    src="{{ category.image.url }}"
+                    alt="{{ category.name }}"
+                    class="category-preview"
+                >
+            {% endif %}
+        </div>
+
+        <div class="form-group checkbox-group">
+            {{ form.is_active }}
+            {{ form.is_active.label_tag }}
+            {{ form.is_active.errors }}
+        </div>
+
+        <button type="submit" class="btn-primary">
+            {% if category %}
+                Update Category
+            {% else %}
+                Create Category
+            {% endif %}
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,96 @@
+
+{% extends "shristi_admin/base.html" %}
+
+{% block title %}
+    {% if action == "block" %}
+        Block Customer | Shristi Admin
+    {% else %}
+        Unblock Customer | Shristi Admin
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="customer-confirm-page">
+
+    <div class="customer-confirm-card">
+
+        <div class="customer-confirm-icon {% if action == 'block' %}block-icon{% else %}unblock-icon{% endif %}">
+            {% if action == "block" %}
+                !
+            {% else %}
+                ✓
+            {% endif %}
+        </div>
+
+        {% if action == "block" %}
+
+            <span class="section-eyebrow">CUSTOMER MANAGEMENT</span>
+
+            <h1>Block Customer?</h1>
+
+            <p class="customer-confirm-description">
+                Are you sure you want to block this customer?
+            </p>
+
+            <div class="customer-confirm-info">
+                <strong>{{ customer.full_name|default:"Customer" }}</strong>
+                <span>{{ customer.email }}</span>
+            </div>
+
+            <p class="customer-confirm-warning">
+                This customer will no longer be able to log in to their account.
+            </p>
+
+        {% else %}
+
+            <span class="section-eyebrow">CUSTOMER MANAGEMENT</span>
+
+            <h1>Unblock Customer?</h1>
+
+            <p class="customer-confirm-description">
+                Are you sure you want to restore this customer's account?
+            </p>
+
+            <div class="customer-confirm-info">
+                <strong>{{ customer.full_name|default:"Customer" }}</strong>
+                <span>{{ customer.email }}</span>
+            </div>
+
+            <p class="customer-confirm-success">
+                This customer will be able to log in again.
+            </p>
+
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="customer-confirm-actions">
+
+                <a
+                    href="{% url 'accounts:customer_detail' customer.id %}"
+                    class="customer-cancel-btn"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="customer-confirm-btn {% if action == 'block' %}danger-btn{% else %}success-btn{% endif %}"
+                >
+                    {% if action == "block" %}
+                        Yes, Block Customer
+                    {% else %}
+                        Yes, Unblock Customer
+                    {% endif %}
+                </button>
+
+            </div>
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

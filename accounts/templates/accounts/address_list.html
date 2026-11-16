@@ -1,0 +1,156 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Addresses | Shristi</title>
+
+    <link rel="stylesheet" href="{% static 'accounts/css/address.css' %}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+
+<body>
+
+<header class="address-header">
+    <a href="{% url 'storefront:home' %}" class="brand-logo">
+        Shristi
+    </a>
+
+    <a href="{% url 'accounts:customer_profile' %}" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i>
+        Back to Profile
+    </a>
+</header>
+
+
+<main class="address-page">
+
+    <div class="address-container">
+
+        <div class="address-heading">
+            <div>
+                <span>MY ACCOUNT</span>
+                <h1>My Addresses</h1>
+                <p>Manage your saved delivery addresses.</p>
+            </div>
+
+            <a href="{% url 'accounts:add_address' %}" class="add-address-button">
+                <i class="fa-solid fa-plus"></i>
+                Add New Address
+            </a>
+        </div>
+
+
+        {% if messages %}
+            <div class="address-messages">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+
+        {% if addresses %}
+
+            <div class="address-grid">
+
+                {% for address in addresses %}
+
+                    <div class="address-card">
+
+                        <div class="address-card-header">
+
+                            <div class="address-type">
+                                {% if address.address_type == "home" %}
+                                    <i class="fa-solid fa-house"></i>
+                                {% elif address.address_type == "work" %}
+                                    <i class="fa-solid fa-briefcase"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-location-dot"></i>
+                                {% endif %}
+
+                                {{ address.get_address_type_display }}
+                            </div>
+
+                            {% if address.is_default %}
+                                <span class="default-badge">Default</span>
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="address-details">
+
+                            <h3>{{ address.full_name }}</h3>
+
+                            <p>
+                                <i class="fa-solid fa-phone"></i>
+                                {{ address.phone_number }}
+                            </p>
+
+                            <p>{{ address.address_line }}</p>
+
+                            {% if address.landmark %}
+                                <p>Landmark: {{ address.landmark }}</p>
+                            {% endif %}
+
+                            <p>
+                                {{ address.city }},
+                                {{ address.state }} -
+                                {{ address.pincode }}
+                            </p>
+
+                        </div>
+
+
+                        <div class="address-actions">
+
+                            <a href="{% url 'accounts:edit_address' address.id %}">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                                Edit
+                            </a>
+
+                            <a href="{% url 'accounts:delete_address' address.id %}" class="delete-address-link">
+                                <i class="fa-regular fa-trash-can"></i>
+                                Delete
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-address">
+
+                <i class="fa-solid fa-location-dot"></i>
+
+                <h2>No Addresses Saved</h2>
+
+                <p>You haven't added any delivery addresses yet.</p>
+
+                <a href="{% url 'accounts:add_address' %}" class="add-address-button">
+                    Add Your First Address
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</main>
+
+</body>
+</html>

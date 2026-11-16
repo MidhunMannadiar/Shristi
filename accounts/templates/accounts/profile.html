@@ -1,0 +1,271 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Profile | Shristi</title>
+
+    <link rel="stylesheet"
+          href="{% static 'accounts/css/profile.css' %}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+
+<body>
+
+    <header class="profile-header">
+
+        <a href="{% url 'storefront:home' %}" class="brand-logo">
+            Shristi
+        </a>
+
+        <a href="{% url 'storefront:home' %}" class="back-home">
+            <i class="fa-solid fa-arrow-left"></i>
+            Continue Shopping
+        </a>
+
+    </header>
+
+
+    <main class="profile-page">
+
+        <div class="profile-container">
+
+            <!-- Page Heading -->
+
+            <div class="page-heading">
+                <span>MY ACCOUNT</span>
+                <h1>My Profile</h1>
+                <p>Manage your personal information and account.</p>
+            </div>
+{% if messages %}
+    <div class="profile-messages">
+        {% for message in messages %}
+            <div class="profile-message {{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+            
+            <!-- Profile Card -->
+
+            <section class="profile-card">
+
+                <div class="profile-top">
+                    <div class="profile-avatar">
+
+                        {% if profile_user.profile_image %}
+                            <img
+                                src="{{ profile_user.profile_image.url }}"
+                                alt="Profile Image"
+                            >
+                        {% else %}
+                            <i class="fa-regular fa-user"></i>
+                        {% endif %}
+
+                    </div>
+
+                    <div class="profile-welcome">
+
+                        <span>WELCOME BACK</span>
+
+                        <h2>
+                            {{ profile_user.full_name|default:profile_user.email }}
+                        </h2>
+
+                        <p>Welcome to your Shristi account.</p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="profile-divider"></div>
+
+
+                <!-- Personal Information -->
+
+                <div class="profile-section">
+
+                    <div class="section-heading">
+    <h3>Personal Information</h3>
+
+    <a href="{% url 'accounts:edit_profile' %}" class="edit-profile-link">
+        <i class="fa-regular fa-pen-to-square"></i>
+        Edit Profile
+    </a>
+</div>
+
+
+
+
+                    <div class="information-group">
+
+                        <div class="information-item">
+
+                            <label>Full Name</label>
+
+                            <p>
+                                {{ profile_user.full_name|default:"Not provided" }}
+                            </p>
+
+                        </div>
+
+
+                        <div class="information-item">
+
+                            <label>Email Address</label>
+
+                            <p>{{ profile_user.email }}</p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+<div class="profile-divider"></div>
+
+<div class="profile-section">
+
+    <div class="section-heading">
+        <h3>My Addresses</h3>
+        <i class="fa-solid fa-location-dot"></i>
+    </div>
+
+    <p>
+        Manage your saved delivery addresses.
+    </p>
+
+    <a href="{% url 'accounts:address_list' %}"
+       class="edit-profile-link">
+
+        <i class="fa-solid fa-location-dot"></i>
+        Manage Addresses
+
+    </a>
+
+</div>
+
+                <div class="profile-divider"></div>
+<div class="profile-divider"></div>
+
+<!-- PASSWORD MANAGEMENT -->
+
+<div class="profile-section">
+
+    <div class="section-heading">
+        <h3>Password & Security</h3>
+        <i class="fa-solid fa-lock"></i>
+    </div>
+
+    <p class="security-description">
+        Keep your account secure by updating your password regularly.
+    </p>
+
+    <a href="{% url 'accounts:change_password' %}"
+       class="edit-profile-link">
+
+        <i class="fa-solid fa-key"></i>
+        Change Password
+
+    </a>
+
+</div>
+
+                <!-- Account Information -->
+
+                <div class="profile-section">
+
+                    <div class="section-heading">
+                        <h3>Account Information</h3>
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+
+                    <div class="information-group">
+
+                        <div class="information-item">
+
+                            <label>Account Status</label>
+
+                            <p class="account-status">
+                                <span></span>
+                                Active
+                            </p>
+
+                        </div>
+
+                        <div class="information-item">
+
+                            <label>Member Since</label>
+
+                            <p>
+                                {{ profile_user.date_joined|date:"d M Y" }}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="profile-divider"></div>
+
+
+                <!-- Logout -->
+
+                <div class="logout-section">
+
+                    <div class="logout-description">
+
+                        <h3>Logout</h3>
+
+                        <p>
+                            Sign out of your Shristi account securely.
+                        </p>
+
+                    </div>
+
+                    <form method="POST"
+                          action="{% url 'accounts:customer_logout' %}">
+
+                        {% csrf_token %}
+
+                        <button type="submit" class="logout-button">
+
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+
+                            Logout
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </section>
+
+
+            <div class="profile-footer">
+                <p>Thank you for being part of Shristi.</p>
+            </div>
+
+        </div>
+
+    </main>
+
+</body>
+
+</html>

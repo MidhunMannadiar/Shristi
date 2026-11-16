@@ -1,0 +1,30 @@
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Database
+db.sqlite
+db.sqlite3
+*.sqlite
+*.sqlite3
+
+# Uploaded media files
+media/
+
+# Collected static files
+staticfiles/
+
+# IDE settings
+.vscode/
+.idea/

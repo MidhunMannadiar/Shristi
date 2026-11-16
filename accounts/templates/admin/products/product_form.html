@@ -1,0 +1,167 @@
+
+{% extends "shristi_admin/base.html" %}
+
+{% block title %}{{ page_title }} | Shristi Admin{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>{{ page_title }}</h1>
+        <p>Add a new handmade product to Shristi.</p>
+    </div>
+
+    <a href="{% url 'products:product_list' %}" class="btn btn-secondary">
+        Back to Products
+    </a>
+</div>
+
+<form method="POST" enctype="multipart/form-data">
+
+    {% csrf_token %}
+
+    <div class="content-card">
+
+        <h2>Basic Information</h2>
+
+        {% for field in form %}
+
+            {% if field.name != "main_image" and field.name != "is_active" %}
+
+                <div class="form-group">
+
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.help_text %}
+                        <small>{{ field.help_text }}</small>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                        <p class="error-message">{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+        {% endfor %}
+
+    </div>
+
+    <div class="content-card">
+
+        <h2>Product Main Image</h2>
+
+        <div class="form-group">
+
+            <label for="{{ form.main_image.id_for_label }}">
+                Main Product Image
+            </label>
+
+            {{ form.main_image }}
+
+            {% for error in form.main_image.errors %}
+                <p class="error-message">{{ error }}</p>
+            {% endfor %}
+
+            <small>
+                Upload the primary image displayed in product listings.
+            </small>
+
+        </div>
+
+    </div>
+
+    <div class="content-card">
+
+        <h2>Gallery Images</h2>
+
+        <p>Upload additional images showing different product angles.</p>
+
+        {{ image_formset.management_form }}
+
+        {% for image_form in image_formset %}
+
+            <div class="form-group">
+
+                <h3>Gallery Image {{ forloop.counter }}</h3>
+
+                {% for hidden in image_form.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+
+                {% for field in image_form.visible_fields %}
+
+                    {% if field.name != "DELETE" %}
+
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+
+                        {{ field }}
+
+                        {% for error in field.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+
+                    {% endif %}
+
+                {% endfor %}
+
+                {% if image_form.DELETE %}
+                    <div>
+                        {{ image_form.DELETE }}
+                        <label for="{{ image_form.DELETE.id_for_label }}">
+                            Delete this image
+                        </label>
+                    </div>
+                {% endif %}
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+    <div class="content-card">
+
+        <h2>Product Status</h2>
+
+        <div class="form-group">
+            {{ form.is_active }}
+            <label for="{{ form.is_active.id_for_label }}">
+                Active Product
+            </label>
+
+            {% for error in form.is_active.errors %}
+                <p class="error-message">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+    </div>
+
+    {% if form.non_field_errors %}
+        <div class="error-message">
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+
+    <div class="form-actions">
+
+        <button type="submit" class="btn btn-primary">
+            Save Product
+        </button>
+
+        <a href="{% url 'products:product_list' %}" class="btn btn-secondary">
+            Cancel
+        </a>
+
+    </div>
+
+</form>
+
+{% endblock %}

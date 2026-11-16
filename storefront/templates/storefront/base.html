@@ -1,0 +1,203 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Shristi | Handmade with Love{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Customer-side CSS -->
+    <link rel="stylesheet" href="{% static 'storefront/css/style.css' %}">
+
+    <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- ================= HEADER ================= -->
+    <header class="site-header">
+
+        <div class="header-container">
+
+            <!-- Logo -->
+            <div class="header-logo">
+                <a href="{% url 'storefront:home' %}">
+                    <img src="{% static 'storefront/images/Shristi_logo.png' %}"
+                         alt="Shristi Handmade Decor">
+                </a>
+            </div>
+
+            <!-- Main Navigation -->
+            <nav class="main-navigation">
+                <a href="{% url 'storefront:home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                    Home
+                </a>
+
+                <a href="{% url 'storefront:shop' %}" class="nav-link {% if request.resolver_match.url_name == 'shop' %}active{% endif %}">
+                    Shop
+                </a>
+            </nav>
+
+            <!-- Header Actions -->
+            <div class="header-actions">
+
+                <!-- Search -->
+                <button type="button"
+                        class="header-icon search-toggle"
+                        id="searchToggle"
+                        aria-label="Open search"
+                        aria-expanded="false">
+
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="11" cy="11" r="7"></circle>
+                        <path d="m16 16 4 4"></path>
+                    </svg>
+                </button>
+
+                <!-- Wishlist -->
+                <a href="#"
+                   class="header-icon"
+                   aria-label="Wishlist">
+
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"></path>
+                    </svg>
+
+                </a>
+
+                <!-- Shopping Bag -->
+                <a href="#"
+                   class="header-icon"
+                   aria-label="Shopping bag">
+
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M5 8h14l1 13H4L5 8Z"></path>
+                        <path d="M9 8V6a3 3 0 0 1 6 0v2"></path>
+                    </svg>
+
+                </a>
+
+                <!-- Profile -->
+                <a href="{% url 'accounts:customer_profile' %}"
+
+                   class="header-icon"
+                   aria-label="My account">
+
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="8" r="4"></circle>
+                        <path d="M4 21a8 8 0 0 1 16 0"></path>
+                    </svg>
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Expandable Search -->
+        <div class="search-panel" id="searchPanel">
+
+            <form action="#" method="get" class="search-form">
+
+                <input type="search"
+                       name="q"
+                       placeholder="Search handmade products..."
+                       aria-label="Search products and categories">
+
+                <button type="submit">Search</button>
+
+            </form>
+
+        </div>
+
+    </header>
+
+
+    <!-- ================= PAGE CONTENT ================= -->
+    <main class="page-content">
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+
+    <!-- ================= FOOTER ================= -->
+    
+<!-- ================= FOOTER ================= -->
+
+<footer class="site-footer">
+
+    <div class="footer-container">
+
+        <!-- Logo -->
+        <div class="footer-logo">
+            <a href="{% url 'storefront:home' %}">
+                <img src="{% static 'storefront/images/Shristi_logo.png' %}"
+                     alt="Shristi Handmade Decor">
+            </a>
+        </div>
+
+        <!-- Brand Description -->
+        <p class="footer-description">
+            Thoughtfully handcrafted pieces that bring warmth,
+            character and timeless beauty into your home.
+        </p>
+
+        <!-- Navigation -->
+        <nav class="footer-links" aria-label="Footer navigation">
+            <a href="{% url 'storefront:home' %}">Home</a>
+            <a href="{% url 'storefront:shop' %}">Shop</a>
+            <a href="#contact">Contact</a>
+        </nav>
+
+        <!-- Social Links -->
+        <div class="footer-social">
+
+            <a href="#" aria-label="Instagram">
+                <i class="fa-brands fa-instagram"></i>
+            </a>
+
+            <a href="#" aria-label="Facebook">
+                <i class="fa-brands fa-facebook-f"></i>
+            </a>
+
+            <a href="mailto:your-email@example.com"
+               aria-label="Email">
+                <i class="fa-regular fa-envelope"></i>
+            </a>
+
+        </div>
+
+        <!-- Copyright -->
+        <div class="footer-bottom">
+            <p>
+                &copy; {% now "Y" %} Shristi.
+                All rights reserved.
+            </p>
+        </div>
+
+    </div>
+
+</footer>
+
+
+
+    <!-- Customer-side JavaScript -->
+    <script src="{% static 'storefront/js/main.js' %}"></script>
+
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>

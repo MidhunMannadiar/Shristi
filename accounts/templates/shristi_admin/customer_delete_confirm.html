@@ -1,0 +1,64 @@
+
+{% extends "shristi_admin/base.html" %}
+{% load static %}
+
+{% block title %}Delete Customer | Shristi Admin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'admin/css/customer.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="customer-delete-page">
+
+    <div class="customer-delete-card">
+
+        <div class="customer-delete-icon">
+            !
+        </div>
+
+        <h1>Delete Customer?</h1>
+
+        <p>
+            Are you sure you want to permanently delete this customer?
+        </p>
+
+        <div class="customer-delete-info">
+
+            <strong>
+                {{ customer.full_name|default:"Customer" }}
+            </strong>
+
+            <span>{{ customer.email }}</span>
+
+        </div>
+
+        <p class="customer-delete-warning">
+            This action cannot be undone. The customer's saved addresses
+            will also be deleted.
+        </p>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="customer-delete-actions">
+
+                <a href="{% url 'accounts:customer_detail' customer.id %}"
+                   class="customer-cancel-btn">
+                    Cancel
+                </a>
+
+                <button type="submit" class="customer-confirm-delete-btn">
+                    Yes, Delete Customer
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</section>
+
+{% endblock %}

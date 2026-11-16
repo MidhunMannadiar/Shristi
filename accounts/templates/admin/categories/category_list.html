@@ -1,0 +1,235 @@
+
+{% extends "shristi_admin/base.html" %}
+
+{% block title %}Category Management | Shristi{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div>
+        <h1>Category Management</h1>
+        <p>Manage your handmade product categories.</p>
+    </div>
+
+    <a href="{% url 'products:category_create' %}" class="btn-primary">
+        + Add Category
+    </a>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+
+<!-- Category Search and Filter -->
+
+<div class="category-filters">
+
+    <form method="GET" class="filter-form">
+
+        <input
+            type="text"
+            name="search"
+            placeholder="Search categories..."
+            value="{{ search_query }}"
+            class="form-control search-input"
+        >
+
+        <select name="status" class="form-control status-select">
+
+            <option value="">All Status</option>
+
+            <option value="active"
+                {% if status == "active" %}selected{% endif %}>
+                Active
+            </option>
+
+            <option value="inactive"
+                {% if status == "inactive" %}selected{% endif %}>
+                Inactive
+            </option>
+
+        </select>
+
+        <button type="submit" class="btn-primary">
+            Apply
+        </button>
+
+        <a href="{% url 'products:category_list' %}" class="btn-secondary">
+            Reset
+        </a>
+
+    </form>
+
+</div>
+
+<!-- Entries Per Page -->
+<div class="pagination-top">
+
+    <form method="GET" class="entries-form">
+
+        <input type="hidden" name="search" value="{{ search_query }}">
+        <input type="hidden" name="status" value="{{ status }}">
+
+        <label for="category-per-page">Show</label>
+
+        <select
+            name="per_page"
+            id="category-per-page"
+            onchange="this.form.submit()"
+        >
+            {% for number in allowed_per_page %}
+                <option
+                    value="{{ number }}"
+                    {% if per_page == number %}selected{% endif %}
+                >
+                    {{ number }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <span>entries</span>
+
+    </form>
+
+</div>
+
+
+<div class="category-table-container">
+
+    <table class="category-table">
+
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Category Name</th>
+                <th>Slug</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for category in categories %}
+
+                <tr>
+                    <td>
+                        {% if category.image %}
+                            <img
+                                src="{{ category.image.url }}"
+                                alt="{{ category.name }}"
+                                class="category-thumbnail"
+                            >
+                        {% else %}
+                            <span>No Image</span>
+                        {% endif %}
+                    </td>
+
+                    <td>{{ category.name }}</td>
+
+                    <td>{{ category.slug }}</td>
+
+                    <td>
+                        {% if category.is_active %}
+                            <span class="status-active">Active</span>
+                        {% else %}
+                            <span class="status-inactive">Inactive</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {{ category.created_at|date:"d M Y" }}
+                    </td>
+
+                    <td class="action-buttons">
+
+                        <a href="{% url 'products:category_update' category.pk %}">
+                            Edit
+                        </a>
+
+                        <form
+                            method="POST"
+                            action="{% url 'products:category_delete' category.pk %}"
+                            onsubmit="return confirm('Are you sure you want to delete this category?');"
+                        >
+                            {% csrf_token %}
+
+                            <button type="submit" class="delete-btn">
+                                Delete
+                            </button>
+                        </form>
+
+                    </td>
+                </tr>
+
+            {% empty %}
+
+                <tr>
+                    <td colspan="6" class="empty-message">
+                        No categories found. Create your first category.
+                    </td>
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+
+<!-- Pagination -->
+
+<div class="pagination-container">
+
+    <span class="page-info">
+        Showing
+        {% if page_obj.paginator.count > 0 %}
+            {{ page_obj.start_index }}–{{ page_obj.end_index }}
+        {% else %}
+            0
+        {% endif %}
+        of {{ page_obj.paginator.count }} categories
+    </span>
+
+    {% if page_obj.has_other_pages %}
+
+        <div class="pagination-controls">
+
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}&per_page={{ per_page }}&search={{ search_query|urlencode }}&status={{ status|urlencode }}">
+                    Previous
+                </a>
+            {% else %}
+                <span class="disabled">Previous</span>
+            {% endif %}
+
+            <span class="page-info">
+                {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}&per_page={{ per_page }}&search={{ search_query|urlencode }}&status={{ status|urlencode }}">
+                    Next
+                </a>
+            {% else %}
+                <span class="disabled">Next</span>
+            {% endif %}
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+
+{% endblock %}

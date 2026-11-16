@@ -1,0 +1,93 @@
+
+{% extends "shristi_admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} | Shristi Admin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'admin/css/customer.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="customer-form-page">
+
+    <div class="customer-form-header">
+        <div>
+            <h1>{{ page_title }}</h1>
+            <p>
+                Manage the saved address for
+                {{ customer.full_name|default:customer.email }}.
+            </p>
+        </div>
+
+        <a href="{% url 'accounts:customer_detail' customer.id %}"
+           class="customer-back-btn">
+            Back to Customer
+        </a>
+    </div>
+
+    <div class="customer-form-card">
+
+        <form method="POST">
+            {% csrf_token %}
+
+            {% for field in form %}
+
+                <div class="customer-form-field">
+
+                    {% if field.field.widget.input_type == "checkbox" %}
+
+                        <label class="customer-address-checkbox-label">
+                            {{ field }}
+                            {{ field.label }}
+                        </label>
+
+                    {% else %}
+
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+
+                        {{ field }}
+
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                        <small class="customer-field-error">
+                            {{ error }}
+                        </small>
+                    {% endfor %}
+
+                </div>
+
+            {% endfor %}
+
+            {% if form.non_field_errors %}
+                <div class="customer-form-error">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="customer-form-actions">
+
+                <a href="{% url 'accounts:customer_detail' customer.id %}"
+                   class="customer-cancel-btn">
+                    Cancel
+                </a>
+
+                <button type="submit" class="customer-submit-btn">
+                    {{ button_text }}
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</section>
+
+{% endblock %}

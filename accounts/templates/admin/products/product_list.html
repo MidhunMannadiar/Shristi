@@ -1,0 +1,312 @@
+
+{% extends "shristi_admin/base.html" %}
+{% load static %}
+
+{% block title %}Products | Shristi Admin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'admin/css/product.css' %}">
+{% endblock %}
+{% block content %}
+
+<div class="product-page">
+
+    <!-- Page Header -->
+    <div class="product-page-header">
+        <div>
+            <span class="product-eyebrow">CATALOG MANAGEMENT</span>
+            <h1>Products</h1>
+            <p>Manage your handmade product collection.</p>
+        </div>
+
+        <a href="{% url 'products:product_create' %}"
+           class="product-add-btn">
+            <span>+</span> Add Product
+        </a>
+    </div>
+
+    <!-- Product Summary -->
+    <div class="product-summary">
+        <div>
+            <span>Total Products</span>
+            <h2>{{ page_obj.paginator.count }}</h2>
+        </div>
+        <div class="product-summary-icon">P</div>
+    </div>
+
+    <!-- Product Content -->
+    <div class="product-content-card">
+
+        <!-- Search and Filter -->
+        <form method="GET" class="product-filter-form">
+
+            <div class="product-search">
+                <span>⌕</span>
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="Search products or SKU..."
+                    value="{{ search_query }}"
+                >
+            </div>
+
+            
+<select name="stock" class="product-status-filter">
+    <option value="" {% if stock == "" %}selected{% endif %}>
+        All Products
+    </option>
+
+    <option value="in_stock" {% if stock == "in_stock" %}selected{% endif %}>
+        In Stock
+    </option>
+
+    <option value="out_of_stock" {% if stock == "out_of_stock" %}selected{% endif %}>
+        Out of Stock
+    </option>
+</select>
+
+<select name="status" class="product-status-filter">
+    <option value="" {% if status == "" %}selected{% endif %}>
+        All Status
+    </option>
+
+    <option value="active" {% if status == "active" %}selected{% endif %}>
+        Active
+    </option>
+
+    <option value="inactive" {% if status == "inactive" %}selected{% endif %}>
+        Inactive
+    </option>
+</select>
+
+
+            <button type="submit" class="product-filter-btn">
+                Apply Filters
+            </button>
+
+            <a href="{% url 'products:product_list' %}"
+               class="product-reset-btn">
+                Reset
+            </a>
+
+        </form>
+
+<!-- Entries Per Page -->
+<div class="pagination-top">
+
+    <form method="GET" class="entries-form">
+
+        <input type="hidden" name="search" value="{{ search_query }}">
+        <input type="hidden" name="status" value="{{ status }}">
+
+        <label for="product-per-page">Show</label>
+
+        <select
+            name="per_page"
+            id="product-per-page"
+            onchange="this.form.submit()"
+        >
+            {% for number in allowed_per_page %}
+                <option
+                    value="{{ number }}"
+                    {% if per_page == number %}selected{% endif %}
+                >
+                    {{ number }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <span>entries</span>
+
+    </form>
+
+</div>
+
+
+        <!-- Products Table -->
+        <div class="product-table-wrapper">
+
+            <table class="product-table">
+
+                <thead>
+                    <tr>
+                        <th>PRODUCT</th>
+                        <th>CATEGORY</th>
+                        <th>PRICE</th>
+                        <th>STOCK</th>
+                        <th>STATUS</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for product in page_obj %}
+
+                    <tr>
+
+                        <!-- Product -->
+                        <td>
+                            <div class="product-info">
+
+                                {% if product.main_image %}
+                                    <img
+                                        src="{{ product.main_image.url }}"
+                                        alt="{{ product.name }}"
+                                        class="product-thumbnail"
+                                    >
+                                {% else %}
+                                    <div class="product-thumbnail-placeholder">
+                                        S
+                                    </div>
+                                {% endif %}
+
+                                <div class="product-name-info">
+                                    <strong>{{ product.name }}</strong>
+                                    <span>SKU: {{ product.sku }}</span>
+                                </div>
+
+                            </div>
+                        </td>
+
+                        <!-- Category -->
+                        <td>
+                            <span class="product-category">
+                                {{ product.category.name }}
+                            </span>
+                        </td>
+
+                        <!-- Price -->
+                        <td>
+                            <div class="product-price-info">
+                                <strong>₹{{ product.selling_price }}</strong>
+
+                                {% if product.discount_percentage %}
+                                    <span class="product-original-price">
+                                        ₹{{ product.original_price }}
+                                    </span>
+                                    <span class="product-discount">
+                                        {{ product.discount_percentage }}% OFF
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <!-- Stock -->
+                        <td>
+                            {% if product.stock == 0 %}
+                                <span class="stock-badge stock-out">
+                                    Out of stock
+                                </span>
+                            {% elif product.stock <= 5 %}
+                                <span class="stock-badge stock-low">
+                                    {{ product.stock }} left
+                                </span>
+                            {% else %}
+                                <span class="stock-badge stock-available">
+                                    {{ product.stock }} available
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Status -->
+                        <td>
+                            {% if product.is_active %}
+                                <span class="product-status status-enabled">
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="product-status status-disabled">
+                                    Inactive
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Actions -->
+                        <td>
+                            <a
+                                href="{% url 'products:product_update' product.pk %}"
+                                class="product-edit-btn"
+                            >
+                                Edit
+                            </a>
+                            <a href="{% url 'products:product_delete' product.pk %}"
+                                class="product-delete-btn">
+                                Delete
+                            </a>
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="6">
+                            <div class="product-empty-state">
+                                <div>✦</div>
+                                <h3>No products found</h3>
+                                <p>Try changing your search or add a new product.</p>
+                                <a href="{% url 'products:product_create' %}"
+                                   class="product-add-btn">
+                                    + Add Product
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        
+<!-- Pagination -->
+<div class="product-pagination">
+
+    <span>
+        Showing
+        {% if page_obj.paginator.count > 0 %}
+            {{ page_obj.start_index }}–{{ page_obj.end_index }}
+        {% else %}
+            0
+        {% endif %}
+        of {{ page_obj.paginator.count }} products
+    </span>
+
+    {% if page_obj.has_other_pages %}
+
+        <div class="pagination-controls">
+
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}&per_page={{ per_page }}&search={{ search_query|urlencode }}&status={{ status|urlencode }}">
+                    Previous
+                </a>
+            {% else %}
+                <span class="disabled">Previous</span>
+            {% endif %}
+
+            <span class="current-page">
+                {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}&per_page={{ per_page }}&search={{ search_query|urlencode }}&status={{ status|urlencode }}">
+                    Next
+                </a>
+            {% else %}
+                <span class="disabled">Next</span>
+            {% endif %}
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+</div>
+
+{% endblock %}
