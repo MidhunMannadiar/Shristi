@@ -1,0 +1,224 @@
+
+{% extends "storefront/base.html" %}
+{% load static %}
+
+{% block title %}Shopping Bag | Shristi{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'cart/css/cart.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="cart-page">
+
+    <div class="cart-container">
+
+        <!-- Page Heading -->
+        <div class="cart-heading">
+            <p class="cart-eyebrow">YOUR SELECTION</p>
+            <h1>Your Shopping Bag</h1>
+            <p>Review your thoughtfully selected handmade pieces.</p>
+        </div>
+
+        {% if cart_items %}
+
+        <div class="cart-layout">
+
+            <!-- LEFT: CART PRODUCTS -->
+            <div class="cart-products">
+
+                <div class="cart-section-heading">
+                    <h2>Your Items</h2>
+                    <span>{{ cart_count }} item{{ cart_count|pluralize }}</span>
+                </div>
+
+                {% for item in cart_items %}
+
+                <article class="cart-item"
+                         data-price="{{ item.unit_price }}">
+
+                    <!-- Product Image -->
+                    <div class="cart-item-image">
+
+                        {% if item.product.main_image %}
+                            <img src="{{ item.product.main_image.url }}"
+                                 alt="{{ item.product.name }}">
+                        {% else %}
+                            <div class="cart-image-placeholder">
+                                No Image
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                    <!-- Product Information -->
+                    <div class="cart-item-details">
+
+                        <p class="cart-item-category">
+                            {{ item.product.category.name }}
+                        </p>
+
+                        <h3>{{ item.product.name }}</h3>
+
+                        <p class="cart-item-sku">
+                            SKU: {{ item.product.sku }}
+                        </p>
+
+                        <p class="cart-item-price">
+                            ₹{{ item.unit_price|floatformat:2 }}
+                        </p>
+
+                        <!-- Quantity Controls -->
+                        <form method="POST"
+      action="{% url 'cart:update_cart_ajax' item.product.id %}"
+      class="cart-quantity-form">
+
+    {% csrf_token %}
+
+    <label>Quantity</label>
+
+    <div class="cart-quantity-control">
+        <button type="button"
+                class="quantity-btn quantity-minus"
+                aria-label="Decrease quantity">−</button>
+
+        <input type="number"
+               name="quantity"
+               class="cart-quantity-input"
+               value="{{ item.quantity }}"
+               min="0"
+               max="{{ item.product.stock }}"
+               readonly>
+
+        <button type="button"
+                class="quantity-btn quantity-plus"
+                aria-label="Increase quantity">+</button>
+    </div>
+</form>
+
+                        <!-- Item Actions -->
+                        <div class="cart-item-actions">
+
+                            <button type="button"
+                                    class="save-later-btn"
+                                    disabled
+                                    title="Wishlist feature coming soon">
+                                Save for Later
+                            </button>
+
+                            <form method="POST"
+                                  action="{% url 'cart:remove_from_cart' item.product.id %}">
+
+                                {% csrf_token %}
+
+                                <button type="submit"
+                                        class="remove-cart-btn">
+                                    Remove
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Item Subtotal -->
+                    <div class="cart-item-subtotal">
+
+                        <span>Subtotal</span>
+
+                        <strong class="item-subtotal">
+                            ₹{{ item.total_price|floatformat:2 }}
+                        </strong>
+
+                    </div>
+
+                </article>
+
+                {% endfor %}
+
+                <a href="{% url 'storefront:shop' %}"
+                   class="continue-shopping">
+                    ← Continue Shopping
+                </a>
+
+            </div>
+
+
+            <!-- RIGHT: ORDER SUMMARY -->
+            <aside class="cart-summary">
+
+                <h2>Order Summary</h2>
+
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <strong id="cartSubtotal">
+                        ₹{{ cart_total|floatformat:2 }}
+                    </strong>
+                </div>
+
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span class="shipping-note">
+                        Calculated at checkout
+                    </span>
+                </div>
+
+                <div class="summary-divider"></div>
+
+                <div class="summary-total">
+                    <span>Estimated Total</span>
+                    <strong id="cartGrandTotal">
+                        ₹{{ cart_total|floatformat:2 }}
+                    </strong>
+                </div>
+
+                <button type="button"
+                        class="checkout-button"
+                        disabled>
+                    Proceed to Checkout
+                </button>
+
+                <p class="checkout-note">
+                    Secure checkout will be available soon.
+                </p>
+
+            </aside>
+
+        </div>
+
+        {% else %}
+
+        <!-- EMPTY CART -->
+        <div class="empty-cart">
+
+            <div class="empty-cart-icon">
+                <i class="fa-solid fa-bag-shopping"></i>
+            </div>
+
+            <h2>Your Shopping Bag Is Empty</h2>
+
+            <p>
+                Discover thoughtfully handcrafted pieces
+                and find something special for your home.
+            </p>
+
+            <a href="{% url 'storefront:shop' %}"
+               class="empty-cart-button">
+                Explore Collection
+            </a>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'cart/js/cart.js' %}"></script>
+{% endblock %}

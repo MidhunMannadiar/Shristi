@@ -130,13 +130,30 @@
                 </div>
             </div>
 
-            <button
-                type="button"
-                class="add-to-bag-button"
-                {% if product.stock == 0 %}disabled{% endif %}
-            >
-                Add to Bag
-            </button>
+
+            <form method="POST"
+                action="{% url 'cart:add_to_cart' product.id %}"
+                class="add-to-cart-form">
+
+                {% csrf_token %}
+
+                <input type="hidden"
+                    name="quantity"
+                    id="cartQuantity"
+                    value="1">
+
+                <button type="submit"
+                        class="add-to-bag-button"
+                        {% if product.stock == 0 %}disabled{% endif %}>
+                    {% if product.stock == 0 %}
+                        Out of Stock
+                    {% else %}
+                        Add to Bag
+                    {% endif %}
+                </button>
+
+            </form>
+
 
             <button
                 type="button"

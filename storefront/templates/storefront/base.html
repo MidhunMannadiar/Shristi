@@ -77,16 +77,17 @@
                 </a>
 
                 <!-- Shopping Bag -->
-                <a href="#"
-                   class="header-icon"
-                   aria-label="Shopping bag">
+                <a href="{% url 'cart:cart_detail' %}" class="header-icon" aria-label="Shopping bag">
 
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M5 8h14l1 13H4L5 8Z"></path>
                         <path d="M9 8V6a3 3 0 0 1 6 0v2"></path>
                     </svg>
 
-                </a>
+                  {% if cart_count %}
+        <span class="cart-count">{{ cart_count }}</span>
+    {% endif %}
+</a>
 
                 <!-- Profile -->
                 <a href="{% url 'accounts:customer_profile' %}"

@@ -100,3 +100,103 @@ productThumbnails.forEach(function (thumbnail) {
     });
 
 });
+
+
+
+/* =========================================
+   PRODUCT DETAIL - QUANTITY SELECTOR
+========================================= */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const productQuantity = document.getElementById("productQuantity");
+    const cartQuantity = document.getElementById("cartQuantity");
+    const minusButton = document.getElementById("quantityMinus");
+    const plusButton = document.getElementById("quantityPlus");
+
+    if (!productQuantity || !cartQuantity) {
+        return;
+    }
+
+    const minimum = parseInt(productQuantity.min) || 1;
+    const maximum = parseInt(productQuantity.max) || 0;
+
+    function updateQuantity(value) {
+
+        let quantity = parseInt(value);
+
+        if (isNaN(quantity)) {
+            quantity = minimum;
+        }
+
+        quantity = Math.max(minimum, Math.min(quantity, maximum));
+
+        productQuantity.value = quantity;
+        cartQuantity.value = quantity;
+
+        // Disable buttons at quantity limits
+        if (minusButton) {
+            minusButton.disabled = quantity <= minimum;
+        }
+
+        if (plusButton) {
+            plusButton.disabled = quantity >= maximum;
+        }
+    }
+
+    // Decrease quantity
+    if (minusButton) {
+        minusButton.addEventListener("click", function () {
+
+            const current = parseInt(productQuantity.value) || minimum;
+
+            if (current > minimum) {
+                updateQuantity(current - 1);
+            }
+
+        });
+    }
+
+    // Increase quantity
+    if (plusButton) {
+        plusButton.addEventListener("click", function () {
+
+            const current = parseInt(productQuantity.value) || minimum;
+
+            if (current < maximum) {
+                updateQuantity(current + 1);
+            }
+
+        });
+    }
+
+    // Handle manual quantity input
+    productQuantity.addEventListener("input", function () {
+        if (productQuantity.value !== "") {
+            const value = parseInt(productQuantity.value);
+
+            if (!isNaN(value)) {
+                cartQuantity.value = Math.max(
+                    minimum,
+                    Math.min(value, maximum)
+                );
+            }
+        }
+    });
+
+    productQuantity.addEventListener("change", function () {
+        updateQuantity(productQuantity.value);
+    });
+
+    // Initial quantity
+    if (maximum >= minimum) {
+        updateQuantity(productQuantity.value);
+    } else {
+        productQuantity.disabled = true;
+
+        if (minusButton) minusButton.disabled = true;
+        if (plusButton) plusButton.disabled = true;
+    }
+
+});
+

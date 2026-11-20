@@ -1023,3 +1023,26 @@ img {
     }
 
 }
+
+/* Shopping Bag Item Count */
+.header-icon {
+    position: relative;
+}
+
+.cart-count {
+    position: absolute;
+    top: -7px;
+    right: -9px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--brown);
+    color: var(--white);
+    border-radius: 50%;
+    font-family: 'Jost', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+}
