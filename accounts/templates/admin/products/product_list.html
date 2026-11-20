@@ -65,19 +65,31 @@
     </option>
 </select>
 
-<select name="status" class="product-status-filter">
-    <option value="" {% if status == "" %}selected{% endif %}>
-        All Status
+
+<select name="sort" class="product-status-filter">
+
+    <option value="newest"
+        {% if sort == "newest" %}selected{% endif %}>
+        Newest First
     </option>
 
-    <option value="active" {% if status == "active" %}selected{% endif %}>
-        Active
+    <option value="oldest"
+        {% if sort == "oldest" %}selected{% endif %}>
+        Oldest First
     </option>
 
-    <option value="inactive" {% if status == "inactive" %}selected{% endif %}>
-        Inactive
+    <option value="name_asc"
+        {% if sort == "name_asc" %}selected{% endif %}>
+        Product Name (A–Z)
     </option>
+
+    <option value="name_desc"
+        {% if sort == "name_desc" %}selected{% endif %}>
+        Product Name (Z–A)
+    </option>
+
 </select>
+
 
 
             <button type="submit" class="product-filter-btn">

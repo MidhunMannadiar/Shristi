@@ -1,5 +1,6 @@
 
 {% extends "shristi_admin/base.html" %}
+{% load static %}
 
 {% block title %}{{ page_title }} | Shristi Admin{% endblock %}
 
@@ -8,7 +9,7 @@
 <div class="page-header">
     <div>
         <h1>{{ page_title }}</h1>
-        <p>Add a new handmade product to Shristi.</p>
+        <p>Add or update a handmade product in Shristi.</p>
     </div>
 
     <a href="{% url 'products:product_list' %}" class="btn btn-secondary">
@@ -19,6 +20,8 @@
 <form method="POST" enctype="multipart/form-data">
 
     {% csrf_token %}
+
+    <!-- BASIC INFORMATION -->
 
     <div class="content-card">
 
@@ -52,6 +55,9 @@
 
     </div>
 
+
+    <!-- PRODUCT MAIN IMAGE -->
+
     <div class="content-card">
 
         <h2>Product Main Image</h2>
@@ -62,19 +68,61 @@
                 Main Product Image
             </label>
 
-            {{ form.main_image }}
+            <div class="product-image-upload">
+
+                <div class="product-image-preview-wrapper">
+
+                    <img
+                        id="mainImagePreview"
+                        class="product-image-preview"
+                        src="{% if product.main_image %}{{ product.main_image.url }}{% endif %}"
+                        data-original-image="{% if product.main_image %}{{ product.main_image.url }}{% endif %}"
+                        alt="Main product image"
+                        {% if not product.main_image %}style="display: none;"{% endif %}
+                    >
+
+                    <div
+                        id="mainImagePlaceholder"
+                        class="product-image-placeholder"
+                        {% if product.main_image %}style="display: none;"{% endif %}
+                    >
+                        <i class="fa-regular fa-image"></i>
+                    </div>
+
+                </div>
+
+                <div class="product-image-actions">
+
+                    {{ form.main_image }}
+
+                    <button
+                        type="button"
+                        id="removeMainImageButton"
+                        class="remove-product-image-button"
+                        {% if not product.main_image %}style="display: none;"{% endif %}
+                    >
+                        <i class="fa-regular fa-trash-can"></i>
+                        Remove
+                    </button>
+
+                    <small>
+                        Upload the primary image displayed in product listings.
+                    </small>
+
+                </div>
+
+            </div>
 
             {% for error in form.main_image.errors %}
                 <p class="error-message">{{ error }}</p>
             {% endfor %}
 
-            <small>
-                Upload the primary image displayed in product listings.
-            </small>
-
         </div>
 
     </div>
+
+
+    <!-- PRODUCT GALLERY IMAGES -->
 
     <div class="content-card">
 
@@ -86,7 +134,7 @@
 
         {% for image_form in image_formset %}
 
-            <div class="form-group">
+            <div class="form-group gallery-image-item">
 
                 <h3>Gallery Image {{ forloop.counter }}</h3>
 
@@ -96,7 +144,55 @@
 
                 {% for field in image_form.visible_fields %}
 
-                    {% if field.name != "DELETE" %}
+                    {% if field.name == "image" %}
+
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+
+                        <div class="product-image-upload">
+
+                            <div class="product-image-preview-wrapper">
+
+                                <img
+                                    class="product-image-preview gallery-image-preview"
+                                    src="{% if image_form.instance.pk and image_form.instance.image %}{{ image_form.instance.image.url }}{% endif %}"
+                                    data-original-image="{% if image_form.instance.pk and image_form.instance.image %}{{ image_form.instance.image.url }}{% endif %}"
+                                    alt="Gallery image preview"
+                                    {% if not image_form.instance.pk or not image_form.instance.image %}style="display: none;"{% endif %}
+                                >
+
+                                <div
+                                    class="product-image-placeholder gallery-image-placeholder"
+                                    {% if image_form.instance.pk and image_form.instance.image %}style="display: none;"{% endif %}
+                                >
+                                    <i class="fa-regular fa-image"></i>
+                                </div>
+
+                            </div>
+
+                            <div class="product-image-actions">
+
+                                {{ field }}
+
+                                <button
+                                    type="button"
+                                    class="remove-product-image-button remove-gallery-image-button"
+                                    {% if not image_form.instance.pk or not image_form.instance.image %}style="display: none;"{% endif %}
+                                >
+                                    <i class="fa-regular fa-trash-can"></i>
+                                    Remove
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        {% for error in field.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+
+                    {% else %}
 
                         <label for="{{ field.id_for_label }}">
                             {{ field.label }}
@@ -113,8 +209,9 @@
                 {% endfor %}
 
                 {% if image_form.DELETE %}
-                    <div>
+                    <div class="gallery-delete-checkbox">
                         {{ image_form.DELETE }}
+
                         <label for="{{ image_form.DELETE.id_for_label }}">
                             Delete this image
                         </label>
@@ -127,12 +224,17 @@
 
     </div>
 
+
+    <!-- PRODUCT STATUS -->
+
     <div class="content-card">
 
         <h2>Product Status</h2>
 
         <div class="form-group">
+
             {{ form.is_active }}
+
             <label for="{{ form.is_active.id_for_label }}">
                 Active Product
             </label>
@@ -140,15 +242,20 @@
             {% for error in form.is_active.errors %}
                 <p class="error-message">{{ error }}</p>
             {% endfor %}
+
         </div>
 
     </div>
+
 
     {% if form.non_field_errors %}
         <div class="error-message">
             {{ form.non_field_errors }}
         </div>
     {% endif %}
+
+
+    <!-- FORM ACTIONS -->
 
     <div class="form-actions">
 
@@ -163,5 +270,12 @@
     </div>
 
 </form>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script src="{% static 'admin/js/product_image_preview.js' %}"></script>
 
 {% endblock %}

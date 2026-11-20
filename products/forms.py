@@ -1,8 +1,8 @@
 
 from django import forms
-from .models import Category
 from django.forms import modelformset_factory
-from .models import ProductImage
+
+from .models import Category, Product, ProductImage
 
 
 class CategoryForm(forms.ModelForm):
@@ -31,16 +31,13 @@ class CategoryForm(forms.ModelForm):
 
             "image": forms.ClearableFileInput(attrs={
                 "class": "form-control",
+                "data-crop-image": "true",
             }),
 
             "is_active": forms.CheckboxInput(attrs={
                 "class": "form-check-input",
             }),
         }
-
-
-
-from .models import Product
 
 
 class ProductForm(forms.ModelForm):
@@ -103,6 +100,7 @@ class ProductForm(forms.ModelForm):
 
             "main_image": forms.ClearableFileInput(attrs={
                 "class": "form-control",
+                "data-crop-image": "true",
             }),
 
             "is_active": forms.CheckboxInput(attrs={
@@ -143,6 +141,7 @@ class ProductImageForm(forms.ModelForm):
         widgets = {
             "image": forms.ClearableFileInput(attrs={
                 "class": "form-control",
+                "data-crop-image": "true",
             }),
 
             "alt_text": forms.TextInput(attrs={

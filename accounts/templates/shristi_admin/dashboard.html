@@ -42,25 +42,34 @@
         <p>Orders received</p>
     </div>
 
-
-    <div class="stat-card">
-        <div class="stat-card-top">
-            <span>Total Products</span>
-            <span class="stat-icon">▦</span>
-        </div>
-
-        <h2>0</h2>
-        <p>Products in your catalog</p>
+<div class="stat-card">
+    <div class="stat-card-top">
+        <span><a href="{% url 'products:product_list' %}">Total Products</a></span>
+        <span class="stat-icon">▦</span>
     </div>
 
+    <h2>{{ total_products }}</h2>
+    <p>Products in your catalog</p>
+</div>
+
+<!-- <div class="stat-card">
+    <div class="stat-card-top">
+        <span>Total Categories</span>
+        <span class="stat-icon">▤</span>
+    </div>
+
+    <h2>{{ total_categories }}</h2>
+    <p>Categories in your catalog</p>
+</div> -->
 
     <div class="stat-card">
         <div class="stat-card-top">
-            <span>Total Customers</span>
+            
+            <span><a href="{% url 'accounts:customer_list' %}">Total Customers</a></span>
             <span class="stat-icon">♙</span>
         </div>
 
-        <h2>0</h2>
+        <h2>{{ total_customers }}</h2>
         <p>Registered customers</p>
     </div>
 
@@ -92,12 +101,12 @@
             <h2>Quick Actions</h2>
         </div>
 
-        <a href="#" class="action-link">
+        <a href="{% url 'products:product_create' %}" class="action-link">
             <span>＋</span>
             Add New Product
         </a>
 
-        <a href="#" class="action-link">
+        <a href="{% url 'products:category_create' %}" class="action-link">
             <span>＋</span>
             Add New Category
         </a>

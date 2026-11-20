@@ -1,5 +1,6 @@
 
 {% extends "shristi_admin/base.html" %}
+{% load static %}
 
 {% block title %}{{ page_title }} | Shristi{% endblock %}
 
@@ -18,7 +19,7 @@
 
 <div class="category-form-container">
 
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" id="categoryForm">
 
         {% csrf_token %}
 
@@ -40,19 +41,63 @@
             {{ form.description.errors }}
         </div>
 
+        <!-- CATEGORY IMAGE -->
+
         <div class="form-group">
+
             {{ form.image.label_tag }}
-            {{ form.image }}
+
+            <div class="category-image-upload">
+
+                <div class="category-image-preview-wrapper">
+
+                    <img
+                        id="categoryImagePreview"
+                        class="category-image-preview"
+                        src="{% if category.image %}{{ category.image.url }}{% endif %}"
+                        data-original-image="{% if category.image %}{{ category.image.url }}{% endif %}"
+                        alt="Category image preview"
+                        {% if not category.image %}style="display: none;"{% endif %}
+                    >
+
+                    <div
+                        id="categoryImagePlaceholder"
+                        class="category-image-placeholder"
+                        {% if category.image %}style="display: none;"{% endif %}
+                    >
+                        <i class="fa-regular fa-image"></i>
+                    </div>
+
+                </div>
+
+                <div class="category-image-actions">
+
+                    {{ form.image }}
+
+                    <button
+                        type="button"
+                        id="removeCategoryImageButton"
+                        class="remove-category-image-button"
+                        {% if not category.image %}style="display: none;"{% endif %}
+                    >
+                        <i class="fa-regular fa-trash-can"></i>
+                        Remove
+                    </button>
+
+                    <small>
+                        Choose an image to update your category picture.
+                    </small>
+
+                    <small>
+                        Your selected image will appear here before saving.
+                    </small>
+
+                </div>
+
+            </div>
+
             {{ form.image.errors }}
 
-            {% if category.image %}
-                <p>Current image:</p>
-                <img
-                    src="{{ category.image.url }}"
-                    alt="{{ category.name }}"
-                    class="category-preview"
-                >
-            {% endif %}
         </div>
 
         <div class="form-group checkbox-group">
@@ -71,6 +116,26 @@
 
     </form>
 
+    <!-- SEPARATE FORM TO REMOVE SAVED IMAGE -->
+
+    {% if category %}
+        <form
+            method="POST"
+            action="{% url 'products:category_remove_image' category.pk %}"
+            id="removeSavedCategoryImageForm"
+            style="display: none;"
+        >
+            {% csrf_token %}
+        </form>
+    {% endif %}
+
 </div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script src="{% static 'admin/js/category_image_preview.js' %}"></script>
 
 {% endblock %}

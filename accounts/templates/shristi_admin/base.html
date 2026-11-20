@@ -9,10 +9,17 @@
 
     <title>{% block title %}Shristi Admin{% endblock %}</title>
 
+    <!-- Admin CSS -->
     <link rel="stylesheet" href="{% static 'admin/css/admin_dashboard.css' %}">
     <link rel="stylesheet" href="{% static 'admin/css/product.css' %}">
     <link rel="stylesheet" href="{% static 'admin/css/customer.css' %}">
     <link rel="stylesheet" href="{% static 'admin/css/categories.css' %}">
+
+    <!-- Cropper.js Local CSS -->
+    <link rel="stylesheet" href="{% static 'admin/css/cropper.min.css' %}">
+
+    <!-- Custom Image Cropper CSS -->
+    <link rel="stylesheet" href="{% static 'admin/css/image_cropper.css' %}">
 
     {% block extra_css %}{% endblock %}
 </head>
@@ -34,19 +41,21 @@
                 <p class="nav-heading">MAIN MENU</p>
 
                 <a href="{% url 'accounts:admin_dashboard' %}"
-                  class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                   class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
                     <span class="nav-icon">⌂</span>
                     <span>Dashboard</span>
                 </a>
 
                 <p class="nav-heading">CATALOG</p>
 
-                <a href="{% url 'products:product_list' %}" class="nav-link {% if request.resolver_match.url_name == 'product_list' %}active{% endif %}">
+                <a href="{% url 'products:product_list' %}"
+                   class="nav-link {% if request.resolver_match.url_name == 'product_list' %}active{% endif %}">
                     <span class="nav-icon">▦</span>
                     <span>Products</span>
                 </a>
 
-                <a href="{% url 'products:category_list' %}" class="nav-link {% if request.resolver_match.url_name == 'category_list' %}active{% endif %}" >
+                <a href="{% url 'products:category_list' %}"
+                   class="nav-link {% if request.resolver_match.url_name == 'category_list' %}active{% endif %}">
                     <span class="nav-icon">▤</span>
                     <span>Categories</span>
                 </a>
@@ -59,7 +68,7 @@
                 </a>
 
                 <a href="{% url 'accounts:customer_list' %}"
-                class="nav-link {% if request.resolver_match.url_name == 'customer_list' %}active{% endif %}">
+                   class="nav-link {% if request.resolver_match.url_name == 'customer_list' %}active{% endif %}">
                     <span class="nav-icon">♙</span>
                     <span>Customers</span>
                 </a>
@@ -96,6 +105,7 @@
 
                 <div class="topbar-right">
                     <span class="admin-label">Administrator</span>
+
                     <div class="admin-avatar">
                         {{ request.user.email|first|upper }}
                     </div>
@@ -114,6 +124,13 @@
 
     </div>
 
+    <!-- Cropper.js Local JavaScript -->
+    <script src="{% static 'admin/js/cropper/cropper.min.js' %}"></script>
+
+    <!-- Custom Image Cropper JavaScript -->
+    <script src="{% static 'admin/js/image_cropper.js' %}"></script>
+
+    <!-- Admin Dashboard JavaScript -->
     <script src="{% static 'admin/js/admin_dashboard.js' %}"></script>
 
     {% block extra_js %}{% endblock %}

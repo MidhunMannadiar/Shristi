@@ -39,21 +39,43 @@
             class="form-control search-input"
         >
 
-        <select name="status" class="form-control status-select">
+        
 
-            <option value="">All Status</option>
+        <select name="filter" class="form-control status-select">
+
+            <option value="date_desc"
+                {% if filter_option == "date_desc" %}selected{% endif %}>
+                Newest First
+            </option>
+
+            <option value="date_asc"
+                {% if filter_option == "date_asc" %}selected{% endif %}>
+                Oldest First
+            </option>
+
+            <option value="name_asc"
+                {% if filter_option == "name_asc" %}selected{% endif %}>
+                Name (A–Z)
+            </option>
+
+            <option value="name_desc"
+                {% if filter_option == "name_desc" %}selected{% endif %}>
+                Name (Z–A)
+            </option>
 
             <option value="active"
-                {% if status == "active" %}selected{% endif %}>
-                Active
+                {% if filter_option == "active" %}selected{% endif %}>
+                Active Categories
             </option>
 
             <option value="inactive"
-                {% if status == "inactive" %}selected{% endif %}>
-                Inactive
+                {% if filter_option == "inactive" %}selected{% endif %}>
+                Inactive Categories
             </option>
 
         </select>
+
+
 
         <button type="submit" class="btn-primary">
             Apply

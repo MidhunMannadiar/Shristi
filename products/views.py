@@ -31,9 +31,9 @@ def admin_required(view_func):
 @admin_required
 def category_list(request):
 
-    categories = Category.objects.all().order_by("-created_at")
+    categories = Category.objects.all()
 
-    # Search
+    # SEARCH
     search_query = request.GET.get("search", "").strip()
 
     if search_query:
@@ -41,16 +41,32 @@ def category_list(request):
             name__icontains=search_query
         )
 
-    # Status filter
-    status = request.GET.get("status", "")
+    # FILTER AND SORTING
+    filter_option = request.GET.get("filter", "")
 
-    if status == "active":
+    if filter_option == "active":
         categories = categories.filter(is_active=True)
+        categories = categories.order_by("-created_at")
 
-    elif status == "inactive":
+    elif filter_option == "inactive":
         categories = categories.filter(is_active=False)
+        categories = categories.order_by("-created_at")
 
-    # Pagination settings
+    elif filter_option == "name_asc":
+        categories = categories.order_by("name")
+
+    elif filter_option == "name_desc":
+        categories = categories.order_by("-name")
+
+    elif filter_option == "date_asc":
+        categories = categories.order_by("created_at")
+
+    else:
+        categories = categories.order_by("-created_at")
+        if filter_option != "date_desc":
+            filter_option = "date_desc"
+
+    # PAGINATION
     per_page = request.GET.get("per_page", "10")
 
     allowed_per_page = [5, 10, 15, 20, 25, 50]
@@ -73,7 +89,7 @@ def category_list(request):
         "categories": page_obj.object_list,
         "page_obj": page_obj,
         "search_query": search_query,
-        "status": status,
+        "filter_option": filter_option,
         "per_page": per_page,
         "allowed_per_page": allowed_per_page,
     }
@@ -155,6 +171,38 @@ def category_update(request, pk):
         }
     )
 
+@admin_required
+@require_POST
+def category_remove_image(request, pk):
+
+    category = get_object_or_404(Category, pk=pk)
+
+    if category.image:
+
+        # Store the existing image information
+        image_storage = category.image.storage
+        image_name = category.image.name
+
+        # Remove the image reference from the category
+        category.image = ""
+        category.save(update_fields=["image"])
+
+        # Delete the physical image after the database update commits
+        def delete_category_image():
+            if image_storage.exists(image_name):
+                image_storage.delete(image_name)
+
+        transaction.on_commit(delete_category_image)
+
+        messages.success(
+            request,
+            "Category image removed successfully."
+        )
+
+    return redirect(
+        "products:category_update",
+        pk=category.pk
+    )
 
 @admin_required
 @require_POST
@@ -177,7 +225,7 @@ def product_list(request):
 
     products = Product.objects.select_related(
         "category"
-    ).order_by("-created_at")
+    )
 
     # SEARCH
     search_query = request.GET.get("search", "").strip()
@@ -206,6 +254,22 @@ def product_list(request):
     elif status == "inactive":
         products = products.filter(is_active=False)
 
+    # SORTING
+    sort = request.GET.get("sort", "newest")
+
+    if sort == "oldest":
+        products = products.order_by("created_at")
+
+    elif sort == "name_asc":
+        products = products.order_by("name")
+
+    elif sort == "name_desc":
+        products = products.order_by("-name")
+
+    else:
+        products = products.order_by("-created_at")
+        sort = "newest"
+
     # PAGINATION
     per_page = request.GET.get("per_page", "5")
 
@@ -231,6 +295,7 @@ def product_list(request):
         "search_query": search_query,
         "stock": stock,
         "status": status,
+        "sort": sort,
         "per_page": per_page,
         "allowed_per_page": allowed_per_page,
     }
@@ -240,7 +305,6 @@ def product_list(request):
         "admin/products/product_list.html",
         context
     )
-
 
 
 @admin_required

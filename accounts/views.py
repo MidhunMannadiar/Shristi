@@ -27,6 +27,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import update_session_auth_hash
+from products.models import Category, Product
 
 
 User = get_user_model()
@@ -100,12 +101,18 @@ def admin_required(view_func):
 
 @admin_required
 def admin_dashboard(request):
+    total_products = Product.objects.count()
+    total_categories = Category.objects.count()
+    total_customers = User.objects.filter(is_admin=False).count()
 
     return render(
         request,
         "shristi_admin/dashboard.html",
         {
-            "now": timezone.now()
+            "now": timezone.now(),
+            "total_products": total_products,
+            "total_categories": total_categories,
+            "total_customers": total_customers,
         }
     )
 
@@ -836,12 +843,29 @@ def edit_profile(request):
             messages.error(request, "Name cannot exceed 150 characters.")
 
         else:
-            request.user.full_name = full_name
+            user = request.user
+
+            # Keep the old image name before replacing it.
+            old_image_name = (
+                user.profile_image.name
+                if user.profile_image
+                else None
+            )
+
+            user.full_name = full_name
 
             if profile_image:
-                request.user.profile_image = profile_image
+                user.profile_image = profile_image
 
-            request.user.save()
+            user.save()
+
+            # Delete the old image only after the new image is saved.
+            if (
+                profile_image
+                and old_image_name
+                and old_image_name != user.profile_image.name
+            ):
+                user.profile_image.storage.delete(old_image_name)
 
             messages.success(
                 request,
@@ -856,6 +880,35 @@ def edit_profile(request):
         {"profile_user": request.user}
     )
 
+
+# REMOVE PROFILE IMAGE
+
+@login_required(login_url="accounts:customer_login")
+@require_POST
+def remove_profile_image(request):
+
+    user = request.user
+
+    if user.profile_image:
+
+        # Delete the image from the configured media storage.
+        user.profile_image.delete(save=False)
+
+        # Update the database field.
+        user.save(update_fields=["profile_image"])
+
+        messages.success(
+            request,
+            "Your profile picture has been removed successfully."
+        )
+
+    else:
+        messages.info(
+            request,
+            "You don't have a profile picture to remove."
+        )
+
+    return redirect("accounts:edit_profile")
 
 
 # ADDRESS MANAGEMENT

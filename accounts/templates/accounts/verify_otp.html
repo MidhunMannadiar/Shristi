@@ -28,7 +28,15 @@
                     <h2>Shristi</h2>
                     <span>EMAIL VERIFICATION</span>
                 </div>
-
+                {% if messages %}
+    <div class="login-messages">
+        {% for message in messages %}
+            <div class="login-message {{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
                 <div class="auth-heading">
                     <h1>Verify Your Email</h1>
                     <p>

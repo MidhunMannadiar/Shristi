@@ -22,6 +22,11 @@ urlpatterns = [
         views.category_update,
         name="category_update"
     ),
+    path(
+    "admin/categories/<int:pk>/remove-image/",
+    views.category_remove_image,
+    name="category_remove_image"
+    ),
 
     path(
         "admin/categories/<int:pk>/delete/",

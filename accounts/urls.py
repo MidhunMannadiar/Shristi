@@ -80,6 +80,11 @@ path(
     path("profile/", views.customer_profile, name="customer_profile"),
     path("profile/edit/", views.edit_profile, name="edit_profile"),
     path(
+    "profile/remove-image/",
+    views.remove_profile_image,
+    name="remove_profile_image"
+),
+    path(
     "profile/change-password/",
     views.change_password,
     name="change_password"
@@ -111,5 +116,6 @@ path(
         views.delete_address,
         name="delete_address"
     ),
+
 
 ]
