@@ -5,17 +5,74 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse
 from django.urls import reverse
+from .forms import ContactForm
+from django.conf import settings
+from django.shortcuts import redirect
+from django.contrib import messages
+from django.core.mail import send_mail, EmailMessage
 
 def home(request):
+
     categories = Category.objects.filter(
         is_active=True
     ).order_by("-created_at")[:4]
 
+    contact_form = ContactForm(request.POST or None)
+
+    if request.method == "POST":
+
+        if contact_form.is_valid():
+
+            name = contact_form.cleaned_data["name"]
+            email = contact_form.cleaned_data["email"]
+            subject = contact_form.cleaned_data["subject"]
+            message = contact_form.cleaned_data["message"]
+
+            try:
+
+                email_message = EmailMessage(
+                    subject=f"Shristi Contact: {subject}",
+                    body=(
+                        f"Name: {name}\n"
+                        f"Email: {email}\n\n"
+                        f"Message:\n{message}"
+                    ),
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    to=[settings.CONTACT_EMAIL],
+                    reply_to=[email],
+                )
+
+                email_message.send(fail_silently=False)
+
+                messages.success(
+                    request,
+                    "Thank you! Your message has been sent successfully."
+                )
+
+                return redirect("storefront:home")
+
+            except Exception:
+                import logging
+
+                logging.exception(
+                    "Shristi contact form email sending failed."
+                )
+
+                messages.error(
+                    request,
+                    "Sorry, your message could not be sent. Please try again."
+                )
+
     context = {
         "categories": categories,
+        "contact_form": contact_form,
     }
 
-    return render(request, "storefront/home.html", context)
+    return render(
+        request,
+        "storefront/home.html",
+        context
+    )
 
 
 

@@ -165,6 +165,7 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
 DEFAULT_FROM_EMAIL = f"Shristi <{EMAIL_HOST_USER}>"
+CONTACT_EMAIL = os.getenv("CONTACT_EMAIL", EMAIL_HOST_USER)
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
