@@ -259,11 +259,11 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
 
             // Restore the original image in Edit mode.
-            {% if is_edit and customer.profile_image %}
-                preview.src = "{{ customer.profile_image.url|escapejs }}";
-                preview.hidden = false;
-                placeholder.hidden = true;
-            {% endif %}
+                {% if is_edit and customer.profile_image %}
+                    preview.src = "{{ customer.profile_image.url|escapejs }}";
+                    preview.hidden = false;
+                    placeholder.hidden = true;
+                {% endif %}
 
         }
 

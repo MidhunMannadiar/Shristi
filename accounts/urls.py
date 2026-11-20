@@ -90,7 +90,11 @@ path(
     name="change_password"
     ),
     path("logout/", views.customer_logout, name="customer_logout"),
-
+    path(
+    "profile/change-email/",
+    views.request_email_change,
+    name="request_email_change"
+),
 # ADDRESS MANAGEMENT
 
     path(

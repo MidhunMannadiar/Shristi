@@ -493,15 +493,30 @@ def forgot_password(request):
 
 
 
+
 def verify_otp(request):
-
+    pending_email_change = request.session.get("pending_email_change")
     pending_signup = request.session.get("pending_signup")
-    pending_password_reset = request.session.get(
-        "pending_password_reset"
-    )
+    pending_password_reset = request.session.get("pending_password_reset")
 
-    # Determine the OTP purpose
-    if pending_signup:
+    # Handle email change verification first
+    if pending_email_change:
+
+        if (
+            not request.user.is_authenticated
+            or pending_email_change.get("user_id") != request.user.id
+        ):
+            request.session.pop("pending_email_change", None)
+            messages.error(
+                request,
+                "Your email change session has expired. Please try again."
+            )
+            return redirect("accounts:customer_login")
+
+        email = pending_email_change["email"]
+        purpose = EmailVerification.Purpose.EMAIL_CHANGE
+
+    elif pending_signup:
         email = pending_signup["email"]
         purpose = EmailVerification.Purpose.SIGNUP
 
@@ -517,7 +532,6 @@ def verify_otp(request):
         return redirect("accounts:customer_login")
 
     if request.method == "POST":
-
         entered_otp = request.POST.get("otp", "").strip()
 
         if len(entered_otp) != 6 or not entered_otp.isdigit():
@@ -535,28 +549,54 @@ def verify_otp(request):
 
         if is_verified:
 
-            if purpose == EmailVerification.Purpose.SIGNUP:
+            # Complete email change
+            if purpose == EmailVerification.Purpose.EMAIL_CHANGE:
 
+                if User.objects.filter(
+                    email__iexact=email
+                ).exclude(pk=request.user.pk).exists():
+
+                    request.session.pop("pending_email_change", None)
+                    messages.error(
+                        request,
+                        "This email address is already registered."
+                    )
+                    return redirect("accounts:customer_profile")
+
+                with transaction.atomic():
+                    user = User.objects.select_for_update().get(
+                        pk=request.user.pk
+                    )
+                    user.email = email
+                    user.save(update_fields=["email"])
+
+                request.session.pop("pending_email_change", None)
+
+                messages.success(
+                    request,
+                    "Your email address has been updated successfully."
+                )
+                return redirect("accounts:customer_profile")
+
+            # Complete signup verification
+            elif purpose == EmailVerification.Purpose.SIGNUP:
                 request.session["signup_email_verified"] = email
-
                 messages.success(request, message)
-
                 return redirect("accounts:set_password")
 
+            # Complete password reset verification
             elif purpose == EmailVerification.Purpose.PASSWORD_RESET:
-
                 request.session["password_reset_verified"] = email
-
                 messages.success(
                     request,
                     "Email verified successfully. You can now reset your password."
                 )
-
                 return redirect("accounts:set_password")
 
         messages.error(request, message)
 
     return render(request, "accounts/verify_otp.html")
+
 
 
 def set_password(request):
@@ -850,6 +890,63 @@ def change_password(request):
         "accounts/change_password.html"
     )
 
+
+@login_required(login_url="accounts:customer_login")
+def request_email_change(request):
+
+    if request.method == "POST":
+
+        new_email = request.POST.get("email", "").strip().lower()
+
+        # Validate email format
+        try:
+            validate_email(new_email)
+        except ValidationError:
+            messages.error(request, "Please enter a valid email address.")
+            return render(request, "accounts/email_change.html")
+
+        # Prevent using the current email
+        if new_email == request.user.email.lower():
+            messages.error(
+                request,
+                "This is already your current email address."
+            )
+            return render(request, "accounts/email_change.html")
+
+        # Check whether another account already uses this email
+        if User.objects.filter(email__iexact=new_email).exists():
+            messages.error(
+                request,
+                "An account with this email already exists."
+            )
+            return render(request, "accounts/email_change.html")
+
+        try:
+            generate_and_send_otp(
+                new_email,
+                EmailVerification.Purpose.EMAIL_CHANGE
+            )
+
+            request.session["pending_email_change"] = {
+                "email": new_email,
+                "user_id": request.user.id,
+            }
+
+            request.session.set_expiry(600)
+
+            messages.success(
+                request,
+                "Verification code sent to your new email address."
+            )
+
+            return redirect("accounts:verify_otp")
+
+        except Exception:
+            messages.error(
+                request,
+                "Unable to send verification code. Please try again.")
+
+    return render(request, "accounts/email_change.html")
 
 
 @login_required(login_url="accounts:customer_login")

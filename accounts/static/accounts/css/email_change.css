@@ -1,0 +1,170 @@
+
+/* =================================
+   EMAIL CHANGE PAGE
+================================= */
+
+.email-change-container {
+    min-height: 75vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    background: var(--ivory, #F8F6F1);
+    font-family: 'Jost', sans-serif;
+}
+
+.email-change-card {
+    width: 100%;
+    max-width: 480px;
+    padding: 48px 42px;
+    background: var(--white, #FFFFFF);
+    border: 1px solid var(--sand, #E3D8C8);
+    border-radius: 4px;
+    text-align: center;
+    box-shadow: 0 12px 35px rgba(73, 56, 44, 0.07);
+}
+
+/* Icon */
+
+.email-change-icon {
+    width: 62px;
+    height: 62px;
+    margin: 0 auto 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--cream, #F1EDE5);
+    color: var(--brown, #755B46);
+    border-radius: 50%;
+    font-size: 23px;
+}
+
+/* Heading */
+
+.email-change-subtitle {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--taupe, #A89580);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+}
+
+.email-change-card h2 {
+    margin: 0 0 14px;
+    color: var(--dark-brown, #49382C);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 600;
+}
+
+.email-change-description {
+    margin: 0 auto 30px;
+    max-width: 340px;
+    color: #81766D;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+/* Form */
+
+.email-change-card .form-group {
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+.email-change-card label {
+    display: block;
+    margin-bottom: 9px;
+    color: var(--dark-brown, #49382C);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.email-change-card input {
+    width: 100%;
+    height: 50px;
+    padding: 0 15px;
+    border: 1px solid var(--sand, #E3D8C8);
+    border-radius: 2px;
+    outline: none;
+    background: #FFFEFC;
+    color: var(--ink, #29231F);
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    transition: border-color 0.25s, box-shadow 0.25s;
+    box-sizing: border-box;
+}
+
+.email-change-card input:focus {
+    border-color: var(--brown, #755B46);
+    box-shadow: 0 0 0 3px rgba(117, 91, 70, 0.10);
+}
+
+.email-change-card input::placeholder {
+    color: #B5AAA0;
+}
+
+/* Submit Button */
+
+.email-change-btn {
+    width: 100%;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    border: 1px solid var(--dark-brown, #49382C);
+    border-radius: 2px;
+    background: var(--dark-brown, #49382C);
+    color: #FFFFFF;
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+}
+
+.email-change-btn:hover {
+    background: transparent;
+    color: var(--dark-brown, #49382C);
+}
+
+/* Back Link */
+
+.email-change-card .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 26px;
+    color: var(--brown, #755B46);
+    font-size: 13px;
+    text-decoration: none;
+    transition: color 0.25s;
+}
+
+.email-change-card .back-link:hover {
+    color: var(--ink, #29231F);
+}
+
+/* Responsive */
+
+@media (max-width: 576px) {
+    .email-change-container {
+        min-height: 65vh;
+        padding: 35px 16px;
+    }
+
+    .email-change-card {
+        padding: 36px 24px;
+    }
+
+    .email-change-card h2 {
+        font-size: 31px;
+    }
+
+    .email-change-description {
+        font-size: 13px;
+    }
+}

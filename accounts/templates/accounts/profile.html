@@ -122,13 +122,18 @@
                         </div>
 
 
-                        <div class="information-item">
+                        <div class="info-item">
+    <span class="info-label">Email Address</span>
 
-                            <label>Email Address</label>
+    <span class="info-value">
+        {{ profile_user.email }}
+    </span>
 
-                            <p>{{ profile_user.email }}</p>
-
-                        </div>
+    <a href="{% url 'accounts:request_email_change' %}"
+       class="edit-profile-link">
+        Edit Email
+    </a>
+</div>
 
                     </div>
 
