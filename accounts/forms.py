@@ -129,6 +129,15 @@ class CustomerCreateForm(forms.Form):
         })
     )
 
+    profile_image = forms.ImageField(
+    required=False,
+    widget=forms.ClearableFileInput(attrs={
+        "class": "form-control",
+        "data-crop-image": "true",
+        "accept": "image/*",
+    })
+    )
+
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
             "class": "customer-input",
@@ -201,11 +210,12 @@ class CustomerUpdateForm(forms.Form):
     )
 
     profile_image = forms.ImageField(
-        required=False,
-        widget=forms.FileInput(attrs={
-            "class": "customer-input",
-            "accept": "image/*",
-        })
+    required=False,
+    widget=forms.ClearableFileInput(attrs={
+        "class": "form-control",
+        "data-crop-image": "true",
+        "accept": "image/*",
+    })
     )
 
     is_active = forms.BooleanField(

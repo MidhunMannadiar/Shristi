@@ -207,3 +207,4 @@ SOCIALACCOUNT_AUTO_SIGNUP = True
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 ACCOUNT_SIGNUP_REDIRECT_URL = "/accounts/password/set/"
+LOGIN_URL = "accounts:customer_login"

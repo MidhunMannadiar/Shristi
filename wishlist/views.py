@@ -1,5 +1,7 @@
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 
 from products.models import Product
@@ -10,7 +12,10 @@ from .services import (
 )
 
 
+@login_required
 def wishlist_detail(request):
+    """Display the logged-in customer's wishlist."""
+
     wishlist_products = get_wishlist(request)
 
     return render(
@@ -22,8 +27,11 @@ def wishlist_detail(request):
     )
 
 
+@login_required
 @require_POST
 def add_wishlist(request, product_id):
+    """Add a product to the customer's wishlist."""
+
     product = get_object_or_404(
         Product,
         id=product_id,
@@ -33,20 +41,10 @@ def add_wishlist(request, product_id):
 
     add_to_wishlist(request, product)
 
-    messages.success(request, "Product added to your wishlist.")
-
-    return redirect(request.META.get("HTTP_REFERER", "wishlist:wishlist_detail"))
-
-
-@require_POST
-
-@require_POST
-def remove_wishlist(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-
-    remove_from_wishlist(request, product)
-
-    messages.success(request, "Product removed from your wishlist.")
+    messages.success(
+        request,
+        "Product added to your wishlist."
+    )
 
     return redirect(
         request.META.get(
@@ -55,3 +53,27 @@ def remove_wishlist(request, product_id):
         )
     )
 
+
+@login_required
+@require_POST
+def remove_wishlist(request, product_id):
+    """Remove a product from the customer's wishlist."""
+
+    product = get_object_or_404(
+        Product,
+        id=product_id
+    )
+
+    remove_from_wishlist(request, product)
+
+    messages.success(
+        request,
+        "Product removed from your wishlist."
+    )
+
+    return redirect(
+        request.META.get(
+            "HTTP_REFERER",
+            "wishlist:wishlist_detail"
+        )
+    )

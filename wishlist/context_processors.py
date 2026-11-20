@@ -3,6 +3,14 @@ from .services import get_wishlist
 
 
 def wishlist_context(request):
+    """Provide wishlist data for the current customer."""
+
+    if not request.user.is_authenticated:
+        return {
+            "wishlist_product_ids": set(),
+            "wishlist_count": 0,
+        }
+
     wishlist_products = get_wishlist(request)
 
     wishlist_product_ids = {

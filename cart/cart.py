@@ -1,128 +1,157 @@
 
-from decimal import Decimal
-
+from django.db import transaction
 from products.models import Product
+from .models import CartItem
 
 
 class Cart:
-    """
-    Session-based shopping cart for Shristi.
-    """
 
     def __init__(self, request):
-        self.session = request.session
-        self.session_key = "cart"
+        self.user = request.user
 
-        self.cart = self.session.get(self.session_key, {})
-
-    def _save(self):
-        self.session[self.session_key] = self.cart
-        self.session.modified = True
-
-    def add(self, product, quantity=1, override_quantity=False):
-        try:
-            quantity = int(quantity)
-        except (ValueError, TypeError):
-            raise ValueError("Invalid product quantity.")
-
-        if quantity < 1:
-            raise ValueError("Quantity must be at least 1.")
-
-        if not product.is_active or not product.category.is_active:
-            raise ValueError("This product is unavailable.")
-
-        if product.stock <= 0:
-            raise ValueError("This product is out of stock.")
-
-        product_id = str(product.id)
-
-        if override_quantity:
-            new_quantity = quantity
-        else:
-            new_quantity = self.cart.get(product_id, 0) + quantity
-
-        if new_quantity > product.stock:
-            raise ValueError(
-                f"Only {product.stock} units are available."
-            )
-
-        self.cart[product_id] = new_quantity
-        self._save()
-
-    def update_quantity(self, product_id, quantity):
-        try:
-            quantity = int(quantity)
-        except (ValueError, TypeError):
-            raise ValueError("Invalid product quantity.")
-
-        if quantity < 1:
-            raise ValueError("Quantity must be at least 1.")
-
-        product = Product.objects.filter(
+    def _get_active_product(self, product_id):
+        return Product.objects.filter(
             id=product_id,
             is_active=True,
             category__is_active=True
         ).first()
 
+    def add(self, product, quantity=1, override_quantity=False):
+
+        try:
+            quantity = int(quantity)
+        except (TypeError, ValueError):
+            raise ValueError("Invalid quantity.")
+
+        if quantity < 1:
+            raise ValueError("Quantity must be at least 1.")
+
+        if not self.user.is_authenticated:
+            raise ValueError("Please log in to use your cart.")
+
+        product = self._get_active_product(product.id)
+
         if not product:
-            raise ValueError("Product is unavailable.")
+            raise ValueError("This product is currently unavailable.")
+
+        with transaction.atomic():
+
+            cart_item, created = CartItem.objects.get_or_create(
+                user=self.user,
+                product=product,
+                defaults={"quantity": quantity}
+            )
+
+            if not created:
+
+                new_quantity = (
+                    quantity
+                    if override_quantity
+                    else cart_item.quantity + quantity
+                )
+
+                if new_quantity > product.stock:
+                    raise ValueError(
+                        f"Only {product.stock} units are available."
+                    )
+
+                cart_item.quantity = new_quantity
+                cart_item.save(update_fields=["quantity", "updated_at"])
+
+            elif quantity > product.stock:
+                cart_item.delete()
+
+                raise ValueError(
+                    f"Only {product.stock} units are available."
+                )
+
+        return cart_item
+
+    def update_quantity(self, product_id, quantity):
+
+        try:
+            quantity = int(quantity)
+        except (TypeError, ValueError):
+            raise ValueError("Invalid quantity.")
+
+        if quantity < 1:
+            raise ValueError("Quantity must be at least 1.")
+
+        product = self._get_active_product(product_id)
+
+        if not product:
+            raise ValueError("This product is currently unavailable.")
 
         if quantity > product.stock:
             raise ValueError(
                 f"Only {product.stock} units are available."
             )
 
-        product_id = str(product.id)
+        cart_item = CartItem.objects.filter(
+            user=self.user,
+            product=product
+        ).first()
 
-        if product_id not in self.cart:
-            raise ValueError("Product not found in cart.")
+        if not cart_item:
+            raise ValueError("Product not found in your cart.")
 
-        self.cart[product_id] = quantity
-        self._save()
+        cart_item.quantity = quantity
+        cart_item.save(update_fields=["quantity", "updated_at"])
 
-    def remove(self, product_id):
-        product_id = str(product_id)
+        return cart_item
 
-        if product_id in self.cart:
-            del self.cart[product_id]
-            self._save()
+    def remove(self, product):
+        CartItem.objects.filter(
+            user=self.user,
+            product_id=product.id
+        ).delete()
 
     def clear(self):
-        self.cart = {}
-        self._save()
+        CartItem.objects.filter(user=self.user).delete()
 
     def __iter__(self):
-        products = Product.objects.filter(
-            id__in=self.cart.keys(),
-            is_active=True,
-            category__is_active=True
-        ).select_related("category")
 
-        product_map = {
-            str(product.id): product
-            for product in products
-        }
+        cart_items = CartItem.objects.filter(
+            user=self.user
+        ).select_related(
+            "product",
+            "product__category"
+        )
 
-        for product_id, quantity in self.cart.items():
-            product = product_map.get(product_id)
-
-            if product is None:
-                continue
-
-            unit_price = product.selling_price
+        for item in cart_items:
 
             yield {
-                "product": product,
-                "quantity": quantity,
-                "unit_price": unit_price,
-                "total_price": unit_price * quantity,
+                "product": item.product,
+                "quantity": item.quantity,
+                "unit_price": item.product.selling_price,
+                "total_price": item.subtotal,
             }
 
     def __len__(self):
-        return sum(self.cart.values())
+
+        from django.db.models import Sum
+
+        total_quantity = CartItem.objects.filter(
+            user=self.user
+        ).aggregate(
+            total=Sum("quantity")
+        )["total"]
+
+        return total_quantity or 0
 
     def get_total_price(self):
-        return sum(
-            (item["total_price"] for item in self),
-            Decimal("0.00")
-        )
+
+        from django.db.models import Sum, F, DecimalField, ExpressionWrapper
+
+        total = CartItem.objects.filter(
+            user=self.user
+        ).aggregate(
+            total=Sum(
+                ExpressionWrapper(
+                    F("product__selling_price") * F("quantity"),
+                    output_field=DecimalField()
+                )
+            )
+        )["total"]
+
+        return total or 0

@@ -33,6 +33,7 @@ from products.models import Category, Product
 User = get_user_model()
 
 
+
 def admin_login(request):
 
     if (
@@ -48,23 +49,22 @@ def admin_login(request):
 
         if form.is_valid():
 
-            email = form.cleaned_data["email"]
+            email = form.cleaned_data["email"].strip().lower()
             password = form.cleaned_data["password"]
 
-            # Use Django's standard authentication backend
-            user = ModelBackend().authenticate(
+            user = authenticate(
                 request,
                 email=email,
                 password=password
             )
 
-            if user is not None and user.is_admin:
+            if (
+                user is not None
+                and user.is_admin
+                and user.is_active
+            ):
 
-                login(
-                    request,
-                    user,
-                    backend="django.contrib.auth.backends.ModelBackend"
-                )
+                login(request, user)
 
                 return redirect("accounts:admin_dashboard")
 
@@ -320,6 +320,7 @@ def customer_signup(request):
 
 
 
+
 def customer_login(request):
 
     if request.user.is_authenticated:
@@ -371,6 +372,50 @@ def customer_login(request):
                     extra_tags="login"
                 )
 
+                # Retrieve the product requested before login.
+                pending_add = request.session.pop(
+                    "pending_add_to_cart",
+                    None
+                )
+
+                if pending_add:
+
+                    product = Product.objects.filter(
+                        id=pending_add.get("product_id"),
+                        is_active=True,
+                        category__is_active=True
+                    ).first()
+
+                    if product:
+                        try:
+                            from cart.cart import Cart
+                            from wishlist.services import remove_from_wishlist
+
+                            cart = Cart(request)
+
+                            cart.add(
+                                product,
+                                pending_add.get("quantity", 1)
+                            )
+
+                            remove_from_wishlist(request, product)
+
+                            messages.success(
+                                request,
+                                f"{product.name} added to your shopping bag."
+                            )
+
+                            return redirect("cart:cart_detail")
+
+                        except (ValueError, TypeError) as error:
+                            messages.error(request, str(error))
+
+                    else:
+                        messages.error(
+                            request,
+                            "This product is no longer available."
+                        )
+
                 return redirect("storefront:home")
 
         messages.error(
@@ -378,7 +423,10 @@ def customer_login(request):
             "Invalid email or password. Please try again."
         )
 
+    # Display login page for GET requests and failed login attempts.
     return render(request, "accounts/login.html")
+
+
 
 
 
@@ -1063,11 +1111,12 @@ def delete_address(request, address_id):
     )
 
 
+
 @admin_required
 def customer_create(request):
 
     if request.method == "POST":
-        form = CustomerCreateForm(request.POST)
+        form = CustomerCreateForm(request.POST, request.FILES)
 
         if form.is_valid():
 
@@ -1076,6 +1125,12 @@ def customer_create(request):
                 password=form.cleaned_data["password"],
                 full_name=form.cleaned_data["full_name"],
             )
+
+            profile_image = form.cleaned_data.get("profile_image")
+
+            if profile_image:
+                customer.profile_image = profile_image
+                customer.save(update_fields=["profile_image"])
 
             messages.success(
                 request,
@@ -1102,7 +1157,6 @@ def customer_create(request):
     )
 
 
-
 @admin_required
 def customer_update(request, customer_id):
 
@@ -1127,10 +1181,42 @@ def customer_update(request, customer_id):
             customer.email = form.cleaned_data["email"]
             customer.is_active = form.cleaned_data["is_active"]
 
-            if form.cleaned_data.get("profile_image"):
-                customer.profile_image = form.cleaned_data["profile_image"]
+            new_profile_image = form.cleaned_data.get("profile_image")
+            remove_profile_image = (
+                request.POST.get("remove_profile_image") == "on"
+            )
 
-            customer.save()
+            old_profile_image_name = (
+                customer.profile_image.name
+                if customer.profile_image
+                else None
+            )
+
+            # Replace the existing image with the new image.
+            if new_profile_image:
+
+                customer.profile_image = new_profile_image
+                customer.save()
+
+                # Delete the previous image after the new one is saved.
+                if old_profile_image_name:
+                    customer.profile_image.storage.delete(
+                        old_profile_image_name
+                    )
+
+            # Remove the existing image if requested.
+            elif remove_profile_image:
+
+                customer.profile_image = None
+                customer.save()
+
+                if old_profile_image_name:
+                    customer.profile_image.storage.delete(
+                        old_profile_image_name
+                    )
+
+            else:
+                customer.save()
 
             messages.success(
                 request,
