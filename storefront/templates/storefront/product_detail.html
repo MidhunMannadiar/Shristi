@@ -16,19 +16,28 @@
     <!-- LEFT: PRODUCT IMAGE GALLERY -->
     <div class="product-gallery">
 
-        <div class="product-main-image">
-            {% if product.main_image %}
-                <img
-                    src="{{ product.main_image.url }}"
-                    alt="{{ product.name }}"
-                    id="mainProductImage"
-                >
-            {% else %}
-                <div class="no-product-image">
-                    No Image Available
-                </div>
-            {% endif %}
+        
+        <div class="product-image-viewer">
+
+            <div class="product-main-image">
+                {% if product.main_image %}
+                    <img
+                        src="{{ product.main_image.url }}"
+                        alt="{{ product.name }}"
+                        id="mainProductImage"
+                    >
+                {% else %}
+                    <div class="no-product-image">
+                        No Image Available
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Zoom Preview Panel -->
+            <div class="product-zoom-preview" id="productZoomPreview"></div>
+
         </div>
+
 
         <!-- HORIZONTAL THUMBNAILS -->
         <div class="product-thumbnail-list">

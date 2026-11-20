@@ -224,3 +224,117 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
+
+/* ================= PRODUCT IMAGE ZOOM ================= */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const viewer = document.querySelector(".product-image-viewer");
+    const imageContainer = document.querySelector(".product-main-image");
+    const mainImage = document.getElementById("mainProductImage");
+    const zoomPreview = document.getElementById("productZoomPreview");
+
+    // Stop if the product image elements are unavailable
+    if (!viewer || !imageContainer || !mainImage || !zoomPreview) {
+        return;
+    }
+
+    // Disable zoom on touch devices
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+        return;
+    }
+
+    const zoomLevel = 1.5;
+    const lensSize = 120;
+
+    // Create magnifier lens
+    const lens = document.createElement("div");
+    lens.className = "product-zoom-lens";
+
+    imageContainer.appendChild(lens);
+
+    // Create a duplicate image inside the preview
+    const previewImage = document.createElement("img");
+    previewImage.alt = "";
+
+    previewImage.style.width = "100%";
+    previewImage.style.height = "100%";
+    previewImage.style.objectFit = "cover";
+    previewImage.style.display = "block";
+    previewImage.style.transform = `scale(${zoomLevel})`;
+    previewImage.style.transformOrigin = "center center";
+
+    zoomPreview.appendChild(previewImage);
+
+    function updatePreviewImage() {
+        previewImage.src = mainImage.src;
+    }
+
+    updatePreviewImage();
+
+    // Update preview when a thumbnail changes the main image
+    const imageObserver = new MutationObserver(function () {
+        updatePreviewImage();
+    });
+
+    imageObserver.observe(mainImage, {
+        attributes: true,
+        attributeFilter: ["src"]
+    });
+
+    function moveLens(event) {
+
+        const rect = imageContainer.getBoundingClientRect();
+
+        const lensWidth = lens.offsetWidth;
+        const lensHeight = lens.offsetHeight;
+
+        let x = event.clientX - rect.left;
+        let y = event.clientY - rect.top;
+
+        // Keep the lens inside the image
+        let left = Math.max(
+            0,
+            Math.min(x - lensWidth / 2, rect.width - lensWidth)
+        );
+
+        let top = Math.max(
+            0,
+            Math.min(y - lensHeight / 2, rect.height - lensHeight)
+        );
+
+        lens.style.left = `${left}px`;
+        lens.style.top = `${top}px`;
+
+        // Set zoom origin based on lens centre
+        const centerX = left + lensWidth / 2;
+        const centerY = top + lensHeight / 2;
+
+        const originX = (centerX / rect.width) * 100;
+        const originY = (centerY / rect.height) * 100;
+
+        previewImage.style.transformOrigin =
+            `${originX}% ${originY}%`;
+    }
+
+    imageContainer.addEventListener("mouseenter", function () {
+
+        if (!mainImage.complete || !mainImage.naturalWidth) {
+            return;
+        }
+
+        viewer.classList.add("zoom-active");
+        lens.classList.add("active");
+
+    });
+
+    imageContainer.addEventListener("mousemove", moveLens);
+
+    imageContainer.addEventListener("mouseleave", function () {
+
+        viewer.classList.remove("zoom-active");
+        lens.classList.remove("active");
+
+    });
+
+});
