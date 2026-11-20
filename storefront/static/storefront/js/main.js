@@ -338,3 +338,248 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 });
+
+
+
+
+/* =====================================
+   LIVE SEARCH SUGGESTIONS
+===================================== */
+
+const liveSearchInput = document.getElementById("liveSearchInput");
+const searchSuggestions = document.getElementById("searchSuggestions");
+
+if (liveSearchInput && searchSuggestions) {
+
+    let searchTimeout;
+    let selectedIndex = -1;
+    let currentRequest = null;
+
+    const searchLoading = document.getElementById("searchLoading");
+
+    // Get currently displayed suggestion items
+    function getSuggestionItems() {
+        return Array.from(
+            searchSuggestions.querySelectorAll(".search-suggestion-item")
+        );
+    }
+
+    // Update keyboard selection
+    function updateSelection() {
+
+        const items = getSuggestionItems();
+
+        items.forEach((item, index) => {
+            const isSelected = index === selectedIndex;
+
+            item.classList.toggle("selected", isSelected);
+            item.setAttribute("aria-selected", isSelected);
+
+            if (isSelected) {
+                item.scrollIntoView({
+                    block: "nearest"
+                });
+            }
+        });
+    }
+
+    // Reset keyboard selection
+    function resetSelection() {
+        selectedIndex = -1;
+        updateSelection();
+    }
+
+    // Display loading message
+    function showLoading() {
+        searchSuggestions.innerHTML = "";
+        searchSuggestions.appendChild(searchLoading);
+
+        searchLoading.hidden = false;
+        searchSuggestions.hidden = false;
+    }
+
+    // Hide loading message
+    function hideLoading() {
+        searchLoading.hidden = true;
+    }
+
+    // Handle input
+    liveSearchInput.addEventListener("input", function () {
+
+        const query = this.value.trim();
+
+        clearTimeout(searchTimeout);
+
+        // Cancel previous request
+        if (currentRequest) {
+            currentRequest.abort();
+            currentRequest = null;
+        }
+
+        resetSelection();
+
+        if (query.length < 2) {
+            searchSuggestions.innerHTML = "";
+            searchSuggestions.hidden = true;
+            return;
+        }
+
+        showLoading();
+
+        searchTimeout = setTimeout(async function () {
+
+            const controller = new AbortController();
+            currentRequest = controller;
+
+            try {
+
+                const response = await fetch(
+                    `/search-suggestions/?q=${encodeURIComponent(query)}`,
+                    { signal: controller.signal }
+                );
+
+                if (!response.ok) {
+                    throw new Error("Search request failed");
+                }
+
+                const data = await response.json();
+
+                // Ignore outdated search results
+                if (liveSearchInput.value.trim() !== query) {
+                    return;
+                }
+
+                searchSuggestions.innerHTML = "";
+
+                if (data.results.length === 0) {
+
+                    const message = document.createElement("div");
+                    message.className = "search-suggestion-message";
+                    message.textContent = "No products found.";
+
+                    searchSuggestions.appendChild(message);
+
+                } else {
+
+                    data.results.forEach(product => {
+
+                        const item = document.createElement("a");
+
+                        item.href = product.url;
+                        item.className = "search-suggestion-item";
+                        item.setAttribute("role", "option");
+                        item.setAttribute("aria-selected", "false");
+
+                        const image = document.createElement("img");
+                        image.src = product.image || "/static/images/placeholder.png";
+                        image.alt = product.name;
+
+                        const info = document.createElement("div");
+                        info.className = "search-suggestion-info";
+
+                        const name = document.createElement("span");
+                        name.className = "search-suggestion-name";
+                        name.textContent = product.name;
+
+                        const price = document.createElement("span");
+                        price.className = "search-suggestion-price";
+                        price.textContent = `₹${product.price}`;
+
+                        info.appendChild(name);
+                        info.appendChild(price);
+
+                        item.appendChild(image);
+                        item.appendChild(info);
+
+                        searchSuggestions.appendChild(item);
+                    });
+                }
+
+                searchSuggestions.hidden = false;
+                resetSelection();
+
+            } catch (error) {
+
+                if (error.name !== "AbortError") {
+                    console.error("Live search error:", error);
+                }
+
+            } finally {
+
+                if (currentRequest === controller) {
+                    currentRequest = null;
+                }
+
+                hideLoading();
+            }
+
+        }, 300);
+    });
+
+    // Keyboard navigation
+    liveSearchInput.addEventListener("keydown", function (event) {
+
+        const items = getSuggestionItems();
+
+        if (event.key === "ArrowDown" && items.length > 0) {
+
+            event.preventDefault();
+
+            if (searchSuggestions.hidden) {
+                searchSuggestions.hidden = false;
+            }
+
+            selectedIndex = (selectedIndex + 1) % items.length;
+            updateSelection();
+        }
+
+        else if (event.key === "ArrowUp" && items.length > 0) {
+
+            event.preventDefault();
+
+            selectedIndex = selectedIndex <= 0
+                ? items.length - 1
+                : selectedIndex - 1;
+
+            updateSelection();
+        }
+
+        else if (event.key === "Enter" && selectedIndex >= 0) {
+
+            event.preventDefault();
+
+            if (items[selectedIndex]) {
+                window.location.href = items[selectedIndex].href;
+            }
+        }
+
+        else if (event.key === "Escape") {
+
+            searchSuggestions.hidden = true;
+            resetSelection();
+        }
+    });
+
+    // Close suggestions when clicking outside
+    document.addEventListener("click", function (event) {
+
+        if (
+            !liveSearchInput.contains(event.target) &&
+            !searchSuggestions.contains(event.target)
+        ) {
+            searchSuggestions.hidden = true;
+            resetSelection();
+        }
+    });
+
+    // Show suggestions again on focus
+    liveSearchInput.addEventListener("focus", function () {
+
+        if (
+            this.value.trim().length >= 2 &&
+            searchSuggestions.children.length > 0
+        ) {
+            searchSuggestions.hidden = false;
+        }
+    });
+}

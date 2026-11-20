@@ -2,6 +2,9 @@
 from django.shortcuts import render, get_object_or_404
 from products.models import Product, Category
 from django.core.paginator import Paginator
+from django.db.models import Q
+from django.http import JsonResponse
+from django.urls import reverse
 
 def home(request):
     categories = Category.objects.filter(
@@ -21,6 +24,17 @@ def shop(request):
         is_active=True,
         category__is_active=True
     ).select_related("category")
+
+    # Search products and categories
+    search_query = request.GET.get("q", "").strip()
+
+    if search_query:
+        products = products.filter(
+            Q(name__icontains=search_query) |
+            Q(description__icontains=search_query) |
+            Q(sku__icontains=search_query) |
+            Q(category__name__icontains=search_query)
+        )
 
     # Sorting options
     sort_options = {
@@ -104,9 +118,54 @@ def shop(request):
         "min_price": min_price,
         "max_price": max_price,
         "availability": availability,
+        "search_query": search_query,
     }
 
     return render(request, "storefront/shop.html", context)
+
+def search_suggestions(request):
+
+    query = request.GET.get("q", "").strip()
+
+    # Return empty results for short searches
+    if len(query) < 2:
+        return JsonResponse({"results": []})
+
+    products = Product.objects.filter(
+        is_active=True,
+        category__is_active=True
+    ).filter(
+        Q(name__icontains=query) |
+        Q(description__icontains=query) |
+        Q(sku__icontains=query) |
+        Q(category__name__icontains=query)
+    ).select_related(
+        "category"
+    ).distinct().order_by(
+        "name"
+    )[:5]
+
+    results = []
+
+    for product in products:
+
+        results.append({
+            "name": product.name,
+            "price": str(product.selling_price),
+            "image": (
+                product.main_image.url
+                if product.main_image
+                else ""
+            ),
+            "url": reverse(
+                "storefront:product_detail",
+                kwargs={"slug": product.slug}
+            ),
+        })
+
+    return JsonResponse({
+        "results": results
+    })
 
 
 

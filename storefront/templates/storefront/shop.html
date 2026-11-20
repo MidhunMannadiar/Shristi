@@ -32,10 +32,10 @@
 
     <div class="filter-heading-actions">
 
-        <a href="{% url 'storefront:shop' %}" class="reset-filters">
+        <a href="{% url 'storefront:shop' %}{% if search_query %}?q={{ search_query|urlencode }}{% endif %}"
+        class="reset-filters">
             Reset All
         </a>
-
         <button type="button"
                 class="close-filter-drawer"
                 id="closeFilterDrawer"
@@ -51,8 +51,9 @@
 <div class="filter-group">
     <h3>Sort By</h3>
 
+<form method="GET" id="sortForm">
 
-<form method="GET" id="perPageForm">
+    <input type="hidden" name="q" value="{{ search_query }}">
 
     {% for category_id in selected_categories %}
         <input type="hidden" name="category" value="{{ category_id }}">
@@ -109,6 +110,7 @@
 
     <form method="GET" id="categoryFilterForm">
 
+        <input type="hidden" name="q" value="{{ search_query }}">
         <input type="hidden" name="sort" value="{{ sort_by }}">
         <input type="hidden" name="per_page" value="{{ per_page }}">
 
@@ -140,6 +142,7 @@
 
     <form method="GET" id="priceFilterForm">
 
+        <input type="hidden" name="q" value="{{ search_query }}">
         <input type="hidden" name="sort" value="{{ sort_by }}">
         <input type="hidden" name="per_page" value="{{ per_page }}">
 
@@ -179,6 +182,7 @@
 
     <form method="GET" id="availabilityFilterForm">
 
+        <input type="hidden" name="q" value="{{ search_query }}">
         <input type="hidden" name="sort" value="{{ sort_by }}">
         <input type="hidden" name="per_page" value="{{ per_page }}">
         <input type="hidden" name="min_price" value="{{ min_price }}">
@@ -236,7 +240,11 @@
         <div class="shop-products-area">
 
             <div class="shop-products-header">
-                <h2>Our Products</h2>
+                {% if search_query %}
+                    <h2>Search Results for "{{ search_query }}"</h2>
+                {% else %}
+                    <h2>Our Products</h2>
+                {% endif %}
 
                 
             <div class="shop-controls">
@@ -250,6 +258,17 @@
 
                 <form method="GET" id="perPageForm">
 
+                    <input type="hidden" name="q" value="{{ search_query }}">
+                    <input type="hidden" name="sort" value="{{ sort_by }}">
+            
+                    {% for category_id in selected_categories %}
+                        <input type="hidden" name="category" value="{{ category_id }}">
+                    {% endfor %}
+
+                    <input type="hidden" name="min_price" value="{{ min_price }}">
+                    <input type="hidden" name="max_price" value="{{ max_price }}">
+                    <input type="hidden" name="availability" value="{{ availability }}">
+
                     <select name="per_page"
                             id="productsPerPage"
                             onchange="this.form.submit()">
@@ -261,7 +280,7 @@
                             </option>
                         {% endfor %}
 
-                    </select>
+                    </select> 
 
                 </form>
 
@@ -394,9 +413,22 @@
                 {% empty %}
 
                     <div class="no-products">
+                    {% if search_query %}
+                        <h3>No Products Found</h3>
+                        <p>
+                            Sorry, we couldn't find any products matching
+                            "{{ search_query }}".
+                        </p>
+                        <a href="{% url 'storefront:shop' %}">
+                            View All Products
+                        </a>
+                    {% else %}
                         <h3>No Products Available</h3>
-                        <p>We are preparing something special for you.</p>
-                    </div>
+                        <p>
+                            We are preparing something special for you.
+                        </p>
+                    {% endif %}
+                </div>
 
                 {% endfor %}
 

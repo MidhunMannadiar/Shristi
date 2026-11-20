@@ -53,17 +53,22 @@
             <div class="header-actions">
 
                 <!-- Search -->
-                <button type="button"
-                        class="header-icon search-toggle"
-                        id="searchToggle"
-                        aria-label="Open search"
-                        aria-expanded="false">
+                {% if request.resolver_match.url_name != 'shop' %}
 
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <circle cx="11" cy="11" r="7"></circle>
-                        <path d="m16 16 4 4"></path>
-                    </svg>
-                </button>
+                    <button type="button"
+                            class="header-icon search-toggle"
+                            id="searchToggle"
+                            aria-label="Open search"
+                            aria-expanded="false">
+
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <path d="m16 16 4 4"></path>
+                        </svg>
+
+                    </button>
+
+                {% endif %}
 
                 
                <!-- Wishlist -->
@@ -101,7 +106,7 @@
                    aria-label="My account">
 
                     <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <circle cx="12" cy="8" r="4"></circle>
+                        <circle cx="12" cy="8" r="4"></circle>  
                         <path d="M4 21a8 8 0 0 1 16 0"></path>
                     </svg>
 
@@ -112,16 +117,39 @@
         </div>
 
         <!-- Expandable Search -->
-        <div class="search-panel" id="searchPanel">
+        <div class="search-panel {% if request.resolver_match.url_name == 'shop' %}shop-search{% endif %}"
+            id="searchPanel">
 
-            <form action="#" method="get" class="search-form">
+            <form action="{% url 'storefront:shop' %}"
+                method="GET"
+                class="search-form"
+                autocomplete="off">
 
                 <input type="search"
-                       name="q"
-                       placeholder="Search handmade products..."
-                       aria-label="Search products and categories">
+                    name="q"
+                    id="liveSearchInput"
+                    placeholder="Search handmade products..."
+                    aria-label="Search products and categories"
+                    value="{{ request.GET.q|default:'' }}">
 
-                <button type="submit">Search</button>
+                <!-- Live Search Suggestions -->
+                <div class="search-suggestions"
+                id="searchSuggestions"
+                role="listbox"
+                aria-label="Product suggestions"
+                hidden>
+
+                <div class="search-suggestion-message"
+                    id="searchLoading"
+                    hidden>
+                    Searching...
+                </div>
+
+            </div>
+
+                <button type="submit">
+                    Search
+                </button>
 
             </form>
 
