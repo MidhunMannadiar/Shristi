@@ -100,12 +100,18 @@
                         <!-- Item Actions -->
                         <div class="cart-item-actions">
 
-                            <button type="button"
-                                    class="save-later-btn"
-                                    disabled
-                                    title="Wishlist feature coming soon">
+                            
+                        <form method="POST"
+                            action="{% url 'cart:save_for_later' item.product.id %}">
+
+                            {% csrf_token %}
+
+                            <button type="submit" class="save-later-btn">
+                                <i class="fa-regular fa-heart"></i>
                                 Save for Later
                             </button>
+
+                        </form>
 
                             <form method="POST"
                                   action="{% url 'cart:remove_from_cart' item.product.id %}">

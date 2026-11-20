@@ -28,12 +28,17 @@
                     <h2>Shristi</h2>
                     <span>WELCOME BACK</span>
                 </div>
+
 {% if messages %}
     <div class="login-messages">
         {% for message in messages %}
-            <div class="login-message {{ message.tags }}">
-                {{ message }}
-            </div>
+
+            {% if 'login' in message.tags %}
+                <div class="login-message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endif %}
+
         {% endfor %}
     </div>
 {% endif %}

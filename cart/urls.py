@@ -29,4 +29,9 @@ urlpatterns = [
     views.update_cart_ajax,
     name="update_cart_ajax"
     ),
+    path(
+    "save-for-later/<int:product_id>/",
+    views.save_for_later,
+    name="save_for_later"
+    ),
 ]

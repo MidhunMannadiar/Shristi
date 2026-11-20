@@ -678,3 +678,20 @@ body.filter-drawer-open {
 
     cursor: not-allowed;
 }
+
+.shop-wishlist-form {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+}
+
+/* Active Wishlist Heart */
+
+.wishlist-button.active {
+    color: var(--brown);
+}
+
+.wishlist-button.active i {
+    color: var(--brown);
+}

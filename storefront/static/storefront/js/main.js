@@ -200,3 +200,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
+
+
+/* ================= POPUP NOTIFICATIONS ================= */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const notifications = document.querySelectorAll(".notification");
+
+    notifications.forEach(function (notification) {
+
+        setTimeout(function () {
+
+            notification.classList.add("hide");
+
+            setTimeout(function () {
+                notification.remove();
+            }, 500);
+
+        }, 4000);
+
+    });
+
+});
+

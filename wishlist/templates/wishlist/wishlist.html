@@ -1,0 +1,136 @@
+
+{% extends "storefront/base.html" %}
+{% load static %}
+
+{% block title %}My Wishlist | Shristi{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'wishlist/css/wishlist.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="wishlist-page">
+
+    <div class="wishlist-container">
+
+        <div class="wishlist-heading">
+            <span class="wishlist-subtitle">YOUR COLLECTION</span>
+            <h1>My Wishlist</h1>
+            <p>Your favourite handmade pieces, saved in one place.</p>
+        </div>
+
+        {% if wishlist_products %}
+
+            <div class="wishlist-grid">
+
+                {% for product in wishlist_products %}
+
+                    <article class="wishlist-card">
+
+                        <div class="wishlist-image">
+
+                            <a href="{% url 'storefront:product_detail' product.slug %}">
+                                {% if product.main_image %}
+                                    <img src="{{ product.main_image.url }}"
+                                         alt="{{ product.name }}">
+                                {% else %}
+                                    <div class="wishlist-no-image">
+                                        No image available
+                                    </div>
+                                {% endif %}
+                            </a>
+
+                            <form method="POST"
+                                  action="{% url 'wishlist:remove_wishlist' product.id %}"
+                                  class="wishlist-remove-form">
+
+                                {% csrf_token %}
+
+                                <button type="submit"
+                                        class="wishlist-remove-button"
+                                        aria-label="Remove {{ product.name }} from wishlist">
+                                    <i class="fa-solid fa-heart"></i>
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                        <div class="wishlist-product-info">
+
+                            <h3>
+                                <a href="{% url 'storefront:product_detail' product.slug %}">
+                                    {{ product.name }}
+                                </a>
+                            </h3>
+
+                            <div class="wishlist-price">
+                                <span>₹{{ product.selling_price }}</span>
+
+                                {% if product.original_price > product.selling_price %}
+                                    <del>₹{{ product.original_price }}</del>
+                                {% endif %}
+                            </div>
+
+                            {% if product.stock > 0 %}
+                                <span class="wishlist-stock available">
+                                    In Stock
+                                </span>
+                            {% else %}
+                                <span class="wishlist-stock unavailable">
+                                    Out of Stock
+                                </span>
+                            {% endif %}
+
+                            
+                            <form method="POST"
+                                action="{% url 'cart:add_to_cart' product.id %}"
+                                class="wishlist-add-cart-form">
+
+                                {% csrf_token %}
+
+                                <input type="hidden" name="quantity" value="1">
+
+                                <button type="submit" class="wishlist-view-button">
+                                    <i class="fa-solid fa-bag-shopping"></i>
+                                    Add to Cart
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="wishlist-empty">
+
+                <i class="fa-regular fa-heart"></i>
+
+                <h2>Your wishlist is empty</h2>
+
+                <p>
+                    You haven't saved any handmade treasures yet.
+                    Explore our collection and find something special.
+                </p>
+
+                <a href="{% url 'storefront:shop' %}">
+                    Explore Collection
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+{% endblock %}
+

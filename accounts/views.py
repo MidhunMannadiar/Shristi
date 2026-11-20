@@ -346,7 +346,8 @@ def customer_login(request):
                 messages.error(
                     request,
                     "Your account is currently blocked. "
-                    "Please contact customer support for assistance."
+                    "Please contact customer support for assistance.",
+                    extra_tags="login"
                 )
 
                 return render(
@@ -366,7 +367,8 @@ def customer_login(request):
 
                 messages.success(
                     request,
-                    "Welcome back to Shristi!"
+                    "Welcome back to Shristi!",
+                    extra_tags="login"
                 )
 
                 return redirect("storefront:home")

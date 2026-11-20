@@ -65,16 +65,22 @@
                     </svg>
                 </button>
 
-                <!-- Wishlist -->
-                <a href="#"
-                   class="header-icon"
-                   aria-label="Wishlist">
+                
+               <!-- Wishlist -->
+                <a href="{% url 'wishlist:wishlist_detail' %}"
+                class="header-icon"
+                aria-label="Wishlist">
 
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"></path>
                     </svg>
 
+                    {% if wishlist_count %}
+                        <span class="wishlist-count">{{ wishlist_count }}</span>
+                    {% endif %}
+
                 </a>
+
 
                 <!-- Shopping Bag -->
                 <a href="{% url 'cart:cart_detail' %}" class="header-icon" aria-label="Shopping bag">
@@ -83,7 +89,6 @@
                         <path d="M5 8h14l1 13H4L5 8Z"></path>
                         <path d="M9 8V6a3 3 0 0 1 6 0v2"></path>
                     </svg>
-
                   {% if cart_count %}
         <span class="cart-count">{{ cart_count }}</span>
     {% endif %}
@@ -123,6 +128,35 @@
         </div>
 
     </header>
+
+
+<!-- ================= POPUP NOTIFICATIONS ================= -->
+{% if messages %}
+    <div class="notification-container" id="notificationContainer">
+
+        {% for message in messages %}
+            <div class="notification notification-{{ message.tags }}">
+                <span class="notification-icon">
+                    {% if 'success' in message.tags %}
+                        <i class="fa-solid fa-circle-check"></i>
+                    {% elif 'error' in message.tags %}
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                    {% elif 'warning' in message.tags %}
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    {% else %}
+                        <i class="fa-solid fa-circle-info"></i>
+                    {% endif %}
+                </span>
+
+                <span class="notification-text">
+                    {{ message }}
+                </span>
+            </div>
+        {% endfor %}
+
+    </div>
+{% endif %}
+
 
 
     <!-- ================= PAGE CONTENT ================= -->

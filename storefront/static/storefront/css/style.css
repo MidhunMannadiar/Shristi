@@ -1046,3 +1046,143 @@ img {
     font-size: 10px;
     font-weight: 600;
 }
+
+
+/* Wishlist Count */
+.header-icon {
+    position: relative;
+}
+
+.wishlist-count {
+    position: absolute;
+    top: -7px;
+    right: -9px;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border-radius: 50%;
+    background: var(--brown);
+    color: var(--white);
+    font-family: 'Jost', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+
+
+/* ================= POPUP NOTIFICATIONS ================= */
+
+
+.notification-container {
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    width: min(360px, calc(100% - 30px));
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+}
+
+
+.notification {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 16px 18px;
+    background: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 5px 25px rgba(41, 35, 31, 0.14);
+    border-left: 4px solid var(--brown);
+
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+
+    animation: notificationEnter 0.4s ease forwards;
+}
+
+.notification-icon {
+    font-size: 19px;
+    flex-shrink: 0;
+}
+
+.notification-success {
+    border-left-color: #388E5B;
+}
+
+.notification-success .notification-icon {
+    color: #388E5B;
+}
+
+.notification-error {
+    border-left-color: #C0392B;
+}
+
+.notification-error .notification-icon {
+    color: #C0392B;
+}
+
+.notification-warning {
+    border-left-color: #D69E2E;
+}
+
+.notification-warning .notification-icon {
+    color: #D69E2E;
+}
+
+.notification-info {
+    border-left-color: var(--brown);
+}
+
+.notification-info .notification-icon {
+    color: var(--brown);
+}
+
+.notification-text {
+    line-height: 1.5;
+}
+
+.notification.hide {
+    animation: notificationExit 0.5s ease forwards;
+}
+
+
+@keyframes notificationEnter {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes notificationExit {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+
+@media (max-width: 576px) {
+    .notification-container {
+        top: 85px;
+        right: 15px;
+        width: calc(100% - 30px);
+    }
+}

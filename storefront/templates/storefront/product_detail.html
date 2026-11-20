@@ -163,14 +163,23 @@
                 Buy Now
             </button>
 
-            <button
-                type="button"
-                class="product-wishlist-button"
-                aria-label="Add to wishlist"
-            >
-                <i class="fa-regular fa-heart"></i>
-                Add to Wishlist
-            </button>
+           
+            <form method="POST"
+                action="{% url 'wishlist:add_wishlist' product.id %}"
+                class="product-wishlist-form">
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="product-wishlist-button"
+                    aria-label="Add to wishlist"
+                >
+                    <i class="fa-regular fa-heart"></i>
+                    Add to Wishlist
+                </button>
+
+            </form>
 
         </div>
 

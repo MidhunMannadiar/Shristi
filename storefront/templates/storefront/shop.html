@@ -296,11 +296,50 @@
                                 </span>
                             {% endif %}
 
-                            <button type="button"
-                                    class="wishlist-button"
-                                    aria-label="Add to wishlist">
-                                <i class="fa-regular fa-heart"></i>
-                            </button>
+                            
+                            
+
+                           
+                            {% if product.id in wishlist_product_ids %}
+
+                                <form method="POST"
+                                    action="{% url 'wishlist:remove_wishlist' product.id %}"
+                                    class="shop-wishlist-form">
+
+                                    {% csrf_token %}
+
+                                    <button type="submit"
+                                            class="wishlist-button active"
+                                            aria-label="Remove {{ product.name }} from wishlist">
+
+                                        <i class="fa-solid fa-heart"></i>
+
+                                    </button>
+
+                                </form>
+
+                            {% else %}
+
+                                <form method="POST"
+                                    action="{% url 'wishlist:add_wishlist' product.id %}"
+                                    class="shop-wishlist-form">
+
+                                    {% csrf_token %}
+
+                                    <button type="submit"
+                                            class="wishlist-button"
+                                            aria-label="Add {{ product.name }} to wishlist">
+
+                                        <i class="fa-regular fa-heart"></i>
+
+                                    </button>
+
+                                </form>
+
+                            {% endif %}
+
+
+
 
                         </div>
 
@@ -322,15 +361,32 @@
                                 {% endif %}
 
                             </div>
-                            {% if product.stock > 0 %}
-                            <button type="button" class="add-to-bag-button">
-                                Add to Bag
-                            </button>
-                            {% else %}
-                            <span class="out-of-stock-badge">
-                                Out of Stock
-                            </span>
-                            {% endif %}
+                            
+{% if product.stock > 0 %}
+
+    <form method="POST"
+          action="{% url 'cart:add_to_cart' product.id %}"
+          class="shop-add-cart-form">
+
+        {% csrf_token %}
+
+        <input type="hidden" name="quantity" value="1">
+
+        <button type="submit" class="add-to-bag-button">
+            <i class="fa-solid fa-bag-shopping"></i>
+            Add to Bag
+        </button>
+
+    </form>
+
+{% else %}
+
+    <span class="out-of-stock-badge">
+        Out of Stock
+    </span>
+
+{% endif %}
+
                         </div>
 
                     </div>

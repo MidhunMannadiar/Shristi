@@ -36,9 +36,10 @@ def cart_detail(request):
     return render(request, "cart/cart.html", context)
 
 
+
 @require_POST
 def add_to_cart(request, product_id):
-    """Add a product to the shopping cart."""
+    """Add a product to cart and remove it from wishlist."""
 
     product = get_object_or_404(
         Product,
@@ -53,12 +54,22 @@ def add_to_cart(request, product_id):
 
     try:
         cart.add(product, quantity)
-        messages.success(request, f"{product.name} added to your shopping bag.")
+
+        # Remove product from wishlist after successful cart addition
+        from wishlist.services import remove_from_wishlist
+
+        remove_from_wishlist(request, product)
+
+        messages.success(
+            request,
+            f"{product.name} added to your shopping bag."
+        )
 
     except ValueError as error:
         messages.error(request, str(error))
 
-    return redirect("storefront:product_detail", slug=product.slug)
+    return redirect("cart:cart_detail")
+
 
 
 @require_POST
@@ -78,6 +89,7 @@ def update_cart(request, product_id):
     return redirect("cart:cart_detail")
 
 
+
 @require_POST
 def remove_from_cart(request, product_id):
     """Remove a product from the shopping cart."""
@@ -87,6 +99,41 @@ def remove_from_cart(request, product_id):
     cart.remove(product_id)
 
     messages.success(request, "Product removed from your shopping bag.")
+
+    return redirect("cart:cart_detail")
+
+
+
+@require_POST
+def save_for_later(request, product_id):
+    """Move a product from cart to wishlist."""
+
+    product = get_object_or_404(
+        Product,
+        id=product_id,
+        is_active=True,
+        category__is_active=True
+    )
+
+    cart = Cart(request)
+
+    # Check whether the product exists in cart
+    if str(product.id) not in cart.cart:
+        messages.error(request, "Product not found in your shopping bag.")
+        return redirect("cart:cart_detail")
+
+    # Add product to wishlist
+    from wishlist.services import add_to_wishlist
+
+    add_to_wishlist(request, product)
+
+    # Remove product from cart
+    cart.remove(product.id)
+
+    messages.success(
+        request,
+        f"{product.name} saved to your wishlist."
+    )
 
     return redirect("cart:cart_detail")
 
