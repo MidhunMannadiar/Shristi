@@ -75,6 +75,22 @@ def home(request):
     )
 
 
+def all_categories(request):
+
+    categories = Category.objects.filter(
+        is_active=True
+    ).order_by("-created_at")
+
+    context = {
+        "categories": categories,
+    }
+
+    return render(
+        request,
+        "storefront/all_categories.html",
+        context
+    )
+
 
 def shop(request):
     products = Product.objects.filter(
@@ -138,15 +154,15 @@ def shop(request):
         )
 
     # Products per page
-    per_page_options = [5, 10, 20, 30]
+    per_page_options = [6, 10, 20, 30]
 
     try:
-        per_page = int(request.GET.get("per_page", 5))
+        per_page = int(request.GET.get("per_page", 6))
     except (ValueError, TypeError):
-        per_page = 5
+        per_page = 6
 
     if per_page not in per_page_options:
-        per_page = 5
+        per_page = 6
 
     # Availability filtering
     availability = request.GET.get("availability", "")
@@ -200,7 +216,7 @@ def search_suggestions(request):
         "category"
     ).distinct().order_by(
         "name"
-    )[:5]
+    )[:6]
 
     results = []
 

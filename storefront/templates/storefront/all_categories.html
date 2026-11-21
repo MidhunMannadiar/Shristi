@@ -1,0 +1,71 @@
+{% extends "storefront/base.html" %}
+{% load static %}
+
+{% block title %}All Categories | Shristi{% endblock %}
+
+{% block content %}
+
+<section class="home-categories all-categories-page">
+
+    <div class="categories-heading">
+        <p class="section-eyebrow">EXPLORE OUR COLLECTION</p>
+
+        <h2>All Categories</h2>
+
+        <p>
+            Discover our complete collection of handcrafted pieces,
+            thoughtfully created to bring beauty into your home.
+        </p>
+    </div>
+
+    <div class="categories-grid">
+
+        {% for category in categories %}
+
+            <a href="{% url 'storefront:shop' %}?category={{ category.id }}"
+               class="category-card"
+               style="text-decoration: none; color: inherit;">
+
+                <div class="category-image">
+
+                    {% if category.image %}
+                        <img src="{{ category.image.url }}"
+                             alt="{{ category.name }}">
+                    {% else %}
+                        <div class="category-image-placeholder">
+                            <span>No Image Available</span>
+                        </div>
+                    {% endif %}
+
+                </div>
+
+                <div class="category-info">
+
+                    <h3>{{ category.name }}</h3>
+
+                    <p>
+                        {{ category.description|default:"Explore our handcrafted collection."|truncatewords:12 }}
+                    </p>
+
+                    <span class="category-button">
+                        Explore
+                        <span aria-hidden="true">→</span>
+                    </span>
+
+                </div>
+
+            </a>
+
+        {% empty %}
+
+            <p class="no-categories">
+                Categories will be available soon.
+            </p>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+{% endblock %}
