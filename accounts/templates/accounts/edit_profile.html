@@ -13,6 +13,9 @@
     <link rel="stylesheet"
           href="{% static 'accounts/css/profile.css' %}">
 
+    <link rel="stylesheet"
+          href="{% static 'storefront/css/notifications.css' %}">
+
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&display=swap"
           rel="stylesheet">
 
@@ -22,390 +25,423 @@
 
 <body>
 
-<header class="profile-header">
+    <!-- POPUP NOTIFICATIONS -->
 
-    <a href="{% url 'storefront:home' %}" class="brand-logo">
-        Shristi
-    </a>
+    {% if messages %}
+    <div class="notification-container" id="notificationContainer">
+        {% for message in messages %}
+        <div class="notification notification-{{ message.tags }}">
 
-    <a href="{% url 'accounts:customer_profile' %}" class="back-home">
-        <i class="fa-solid fa-arrow-left"></i>
-        Back to Profile
-    </a>
+            <span class="notification-icon">
+                {% if 'success' in message.tags %}
+                    <i class="fa-solid fa-circle-check"></i>
+                {% elif 'error' in message.tags %}
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                {% elif 'warning' in message.tags %}
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                {% else %}
+                    <i class="fa-solid fa-circle-info"></i>
+                {% endif %}
+            </span>
 
-</header>
+            <span class="notification-text">{{ message }}</span>
 
+            <button
+                type="button"
+                class="notification-close"
+                aria-label="Close notification"
+            >
+                &times;
+            </button>
 
-<main class="profile-page">
-
-    <div class="profile-container">
-
-        <div class="page-heading">
-            <span>MY ACCOUNT</span>
-            <h1>Edit Profile</h1>
-            <p>Update your personal information.</p>
         </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
+    <!-- HEADER -->
 
-        <section class="profile-card">
+    <header class="profile-header">
 
-            {% if messages %}
-                <div class="profile-messages">
-                    {% for message in messages %}
-                        <div class="profile-message {{ message.tags }}">
-                            {{ message }}
+        <a href="{% url 'storefront:home' %}" class="brand-logo">
+            Shristi
+        </a>
+
+        <a href="{% url 'accounts:customer_profile' %}" class="back-home">
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to Profile
+        </a>
+
+    </header>
+
+    <main class="profile-page">
+
+        <div class="profile-container">
+
+            <!-- PAGE HEADING -->
+
+            <div class="page-heading">
+
+                <span>MY ACCOUNT</span>
+
+                <h1>Edit Profile</h1>
+
+                <p>Update your personal information.</p>
+
+            </div>
+
+            <section class="profile-card">
+
+                <!-- UPDATE PROFILE FORM -->
+
+                <form method="POST" enctype="multipart/form-data">
+
+                    {% csrf_token %}
+
+                    <!-- PROFILE IMAGE -->
+
+                    <div class="edit-image-section">
+
+                        <div class="image-preview-wrapper">
+
+                            {% if profile_user.profile_image %}
+
+                                <img
+                                    src="{{ profile_user.profile_image.url }}"
+                                    alt="Profile Picture"
+                                    class="edit-profile-image"
+                                    id="profileImagePreview"
+                                    data-original-image="{{ profile_user.profile_image.url }}"
+                                >
+
+                                <div
+                                    class="edit-profile-placeholder"
+                                    id="profileImagePlaceholder"
+                                    style="display: none;"
+                                >
+                                    <i class="fa-regular fa-user"></i>
+                                </div>
+
+                            {% else %}
+
+                                <img
+                                    src=""
+                                    alt="Profile Picture Preview"
+                                    class="edit-profile-image"
+                                    id="profileImagePreview"
+                                    data-original-image=""
+                                    style="display: none;"
+                                >
+
+                                <div
+                                    class="edit-profile-placeholder"
+                                    id="profileImagePlaceholder"
+                                >
+                                    <i class="fa-regular fa-user"></i>
+                                </div>
+
+                            {% endif %}
+
                         </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
 
+                        <div class="image-upload">
 
-            <!-- UPDATE PROFILE FORM -->
+                            <label for="profile_image">
+                                Profile Image
+                            </label>
 
-            <form method="POST" enctype="multipart/form-data">
+                            <div class="image-upload-actions">
 
-                {% csrf_token %}
+                                <!-- CHOOSE IMAGE -->
 
-                <!-- PROFILE IMAGE -->
+                                <input
+                                    type="file"
+                                    name="profile_image"
+                                    id="profile_image"
+                                    accept="image/*"
+                                >
 
-                <div class="edit-image-section">
+                                <!-- REMOVE IMAGE -->
 
-                    <div class="image-preview-wrapper">
+                                <button
+                                    type="button"
+                                    id="removeProfileImageButton"
+                                    class="remove-image-button"
+                                    style="display: none;"
+                                >
+                                    <i class="fa-regular fa-trash-can"></i>
+                                    Remove
+                                </button>
 
-                        {% if profile_user.profile_image %}
-
-                            <img
-                                src="{{ profile_user.profile_image.url }}"
-                                alt="Profile Picture"
-                                class="edit-profile-image"
-                                id="profileImagePreview"
-                                data-original-image="{{ profile_user.profile_image.url }}"
-                            >
-
-                            <div
-                                class="edit-profile-placeholder"
-                                id="profileImagePlaceholder"
-                                style="display: none;"
-                            >
-                                <i class="fa-regular fa-user"></i>
                             </div>
 
-                        {% else %}
+                            <p>
+                                Choose an image to update your profile picture.
+                            </p>
 
-                            <img
-                                src=""
-                                alt="Profile Picture Preview"
-                                class="edit-profile-image"
-                                id="profileImagePreview"
-                                data-original-image=""
-                                style="display: none;"
-                            >
+                            <p class="image-preview-note">
+                                Your selected image will appear here before saving.
+                            </p>
 
-                            <div
-                                class="edit-profile-placeholder"
-                                id="profileImagePlaceholder"
-                            >
-                                <i class="fa-regular fa-user"></i>
-                            </div>
-
-                        {% endif %}
+                        </div>
 
                     </div>
 
+                    <!-- FULL NAME -->
 
-                    <div class="image-upload">
+                    <div class="edit-form-group">
 
-                        <label for="profile_image">
-                            Profile Image
+                        <label for="full_name">
+                            Full Name
                         </label>
 
-                        <div class="image-upload-actions">
-
-                            <!-- CHOOSE IMAGE -->
-
-                            <input
-                                type="file"
-                                name="profile_image"
-                                id="profile_image"
-                                accept="image/*"
-                            >
-
-                            <!-- REMOVE IMAGE -->
-
-                            <button
-                                type="button"
-                                id="removeProfileImageButton"
-                                class="remove-image-button"
-                                style="display: none;"
-                            >
-                                <i class="fa-regular fa-trash-can"></i>
-                                Remove
-                            </button>
-
-                        </div>
-
-                        <p>
-                            Choose an image to update your profile picture.
-                        </p>
-
-                        <p class="image-preview-note">
-                            Your selected image will appear here before saving.
-                        </p>
+                        <input
+                            type="text"
+                            name="full_name"
+                            id="full_name"
+                            value="{{ profile_user.full_name }}"
+                            maxlength="150"
+                            required
+                        >
 
                     </div>
 
-                </div>
+                    <!-- EMAIL -->
+
+                    <div class="edit-form-group">
+
+                        <label for="email">
+                            Email Address
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            value="{{ profile_user.email }}"
+                            readonly
+                        >
+
+                        <p>Email changes require separate verification.</p>
+
+                        <a href="{% url 'accounts:request_email_change' %}"
+                           class="edit-profile-link">
+
+                            <i class="fa-regular fa-pen-to-square"></i>
+                            Edit Email
+
+                        </a>
+
+                    </div>
+
+                    <!-- FORM ACTIONS -->
+
+                    <div class="edit-form-actions">
+
+                        <a
+                            href="{% url 'accounts:customer_profile' %}"
+                            class="cancel-edit-button"
+                        >
+                            Cancel
+                        </a>
+
+                        <button
+                            type="submit"
+                            class="save-profile-button"
+                        >
+                            Save Changes
+                        </button>
+
+                    </div>
+
+                </form>
+
+                <!-- SEPARATE FORM TO REMOVE SAVED IMAGE -->
+
+                <form
+                    method="POST"
+                    action="{% url 'accounts:remove_profile_image' %}"
+                    id="removeSavedProfileImageForm"
+                    style="display: none;"
+                >
+                    {% csrf_token %}
+                </form>
+
+            </section>
+
+        </div>
+
+    </main>
+
+    <!-- IMAGE PREVIEW AND REMOVE SCRIPT -->
+
+    <script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const imageInput = document.getElementById("profile_image");
+
+        const imagePreview = document.getElementById(
+            "profileImagePreview"
+        );
+
+        const imagePlaceholder = document.getElementById(
+            "profileImagePlaceholder"
+        );
+
+        const removeButton = document.getElementById(
+            "removeProfileImageButton"
+        );
+
+        const removeSavedImageForm = document.getElementById(
+            "removeSavedProfileImageForm"
+        );
+
+        // Previously saved image URL
+        const originalImageUrl = imagePreview.dataset.originalImage;
+
+        const hasSavedImage = Boolean(originalImageUrl);
+
+        let previewUrl = null;
 
 
-                <!-- FULL NAME -->
+        // UPDATE REMOVE BUTTON VISIBILITY
 
-                <div class="edit-form-group">
+        function updateRemoveButton() {
 
-                    <label for="full_name">
-                        Full Name
-                    </label>
+            const hasSelectedImage = imageInput.files.length > 0;
 
-                    <input
-                        type="text"
-                        name="full_name"
-                        id="full_name"
-                        value="{{ profile_user.full_name }}"
-                        maxlength="150"
-                        required
-                    >
+            if (hasSelectedImage || hasSavedImage) {
+                removeButton.style.display = "inline-flex";
+            } else {
+                removeButton.style.display = "none";
+            }
 
-                </div>
-
-
-                <!-- EMAIL -->
-
-                <div class="edit-form-group">
-
-                    <label for="email">
-                        Email Address
-                    </label>
-
-                    <input
-                        type="email"
-                        id="email"
-                        value="{{ profile_user.email }}"
-                        readonly
-                    >
-
-                    <p>Email changes require separate verification.</p>
-
-                </div>
-
-
-                <!-- FORM ACTIONS -->
-
-                <div class="edit-form-actions">
-
-                    <a
-                        href="{% url 'accounts:customer_profile' %}"
-                        class="cancel-edit-button"
-                    >
-                        Cancel
-                    </a>
-
-                    <button
-                        type="submit"
-                        class="save-profile-button"
-                    >
-                        Save Changes
-                    </button>
-
-                </div>
-
-            </form>
-
-
-            <!-- SEPARATE FORM TO REMOVE SAVED IMAGE -->
-
-            <form
-                method="POST"
-                action="{% url 'accounts:remove_profile_image' %}"
-                id="removeSavedProfileImageForm"
-                style="display: none;"
-            >
-                {% csrf_token %}
-            </form>
-
-        </section>
-
-    </div>
-
-</main>
-
-
-<!-- IMAGE PREVIEW AND REMOVE SCRIPT -->
-
-<script>
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    const imageInput = document.getElementById("profile_image");
-
-    const imagePreview = document.getElementById(
-        "profileImagePreview"
-    );
-
-    const imagePlaceholder = document.getElementById(
-        "profileImagePlaceholder"
-    );
-
-    const removeButton = document.getElementById(
-        "removeProfileImageButton"
-    );
-
-    const removeSavedImageForm = document.getElementById(
-        "removeSavedProfileImageForm"
-    );
-
-    // Previously saved image URL
-    const originalImageUrl = imagePreview.dataset.originalImage;
-
-    const hasSavedImage = Boolean(originalImageUrl);
-
-    let previewUrl = null;
-
-
-    // UPDATE REMOVE BUTTON VISIBILITY
-
-    function updateRemoveButton() {
-
-        const hasSelectedImage = imageInput.files.length > 0;
-
-        if (hasSelectedImage || hasSavedImage) {
-            removeButton.style.display = "inline-flex";
-        } else {
-            removeButton.style.display = "none";
         }
 
-    }
 
+        // SELECT IMAGE AND SHOW PREVIEW
 
-    // SELECT IMAGE AND SHOW PREVIEW
+        imageInput.addEventListener("change", function () {
 
-    imageInput.addEventListener("change", function () {
+            const file = this.files[0];
 
-        const file = this.files[0];
+            if (!file) {
+                updateRemoveButton();
+                return;
+            }
 
-        if (!file) {
+            // Validate image file
+            if (!file.type.startsWith("image/")) {
+
+                alert("Please select a valid image file.");
+
+                this.value = "";
+
+                updateRemoveButton();
+
+                return;
+            }
+
+            // Release previous preview URL
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+            }
+
+            // Create temporary image preview
+            previewUrl = URL.createObjectURL(file);
+
+            imagePreview.src = previewUrl;
+
+            imagePreview.style.display = "block";
+
+            imagePlaceholder.style.display = "none";
+
             updateRemoveButton();
-            return;
-        }
 
-        // Validate image file
-        if (!file.type.startsWith("image/")) {
+        });
 
-            alert("Please select a valid image file.");
 
-            this.value = "";
+        // REMOVE IMAGE
 
-            updateRemoveButton();
+        removeButton.addEventListener("click", function () {
 
-            return;
-        }
+            // CASE 1: REMOVE UNSAVED SELECTED IMAGE
 
-        // Release previous preview URL
-        if (previewUrl) {
-            URL.revokeObjectURL(previewUrl);
-        }
+            if (imageInput.files.length > 0) {
 
-        // Create temporary image preview
-        previewUrl = URL.createObjectURL(file);
+                // Clear selected file
+                imageInput.value = "";
 
-        imagePreview.src = previewUrl;
+                if (previewUrl) {
+                    URL.revokeObjectURL(previewUrl);
+                    previewUrl = null;
+                }
 
-        imagePreview.style.display = "block";
+                // Restore previously saved image
+                if (hasSavedImage) {
 
-        imagePlaceholder.style.display = "none";
+                    imagePreview.src = originalImageUrl;
+
+                    imagePreview.style.display = "block";
+
+                    imagePlaceholder.style.display = "none";
+
+                }
+
+                // No saved image: show default avatar
+                else {
+
+                    imagePreview.src = "";
+
+                    imagePreview.style.display = "none";
+
+                    imagePlaceholder.style.display = "flex";
+
+                }
+
+                updateRemoveButton();
+
+                return;
+            }
+
+
+            // CASE 2: REMOVE EXISTING SAVED IMAGE
+
+            if (hasSavedImage) {
+
+                const confirmed = confirm(
+                    "Are you sure you want to remove your profile picture?"
+                );
+
+                if (confirmed) {
+                    removeSavedImageForm.requestSubmit();
+                }
+
+            }
+
+        });
+
+
+        // INITIAL BUTTON VISIBILITY
 
         updateRemoveButton();
 
-    });
 
+        // CLEAN UP TEMPORARY PREVIEW URL
 
-    // REMOVE IMAGE
-
-    removeButton.addEventListener("click", function () {
-
-        // CASE 1: REMOVE UNSAVED SELECTED IMAGE
-
-        if (imageInput.files.length > 0) {
-
-            // Clear selected file
-            imageInput.value = "";
+        window.addEventListener("beforeunload", function () {
 
             if (previewUrl) {
                 URL.revokeObjectURL(previewUrl);
-                previewUrl = null;
             }
 
-            // Restore previously saved image
-            if (hasSavedImage) {
-
-                imagePreview.src = originalImageUrl;
-
-                imagePreview.style.display = "block";
-
-                imagePlaceholder.style.display = "none";
-
-            }
-
-            // No saved image: show default avatar
-            else {
-
-                imagePreview.src = "";
-
-                imagePreview.style.display = "none";
-
-                imagePlaceholder.style.display = "flex";
-
-            }
-
-            updateRemoveButton();
-
-            return;
-        }
-
-
-        // CASE 2: REMOVE EXISTING SAVED IMAGE
-
-        if (hasSavedImage) {
-
-            const confirmed = confirm(
-                "Are you sure you want to remove your profile picture?"
-            );
-
-            if (confirmed) {
-                removeSavedImageForm.requestSubmit();
-            }
-
-        }
+        });
 
     });
 
+    </script>
 
-    // INITIAL BUTTON VISIBILITY
-
-    updateRemoveButton();
-
-
-    // CLEAN UP TEMPORARY PREVIEW URL
-
-    window.addEventListener("beforeunload", function () {
-
-        if (previewUrl) {
-            URL.revokeObjectURL(previewUrl);
-        }
-
-    });
-
-});
-
-</script>
+    <script src="{% static 'storefront/js/notifications.js' %}"></script>
 
 </body>
 </html>

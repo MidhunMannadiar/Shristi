@@ -1,0 +1,232 @@
+
+/* ================= POPUP NOTIFICATIONS ================= */
+
+.notification-container {
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99999;
+
+    width: min(380px, calc(100% - 30px));
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    pointer-events: none;
+}
+
+/* ================= NOTIFICATION BOX ================= */
+
+.notification {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 16px 18px;
+
+    background-color: #FFFFFF;
+    border-radius: 8px;
+
+    box-shadow: 0 5px 25px rgba(41, 35, 31, 0.14);
+
+    border-left: 4px solid #755B46;
+
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: #29231F;
+
+    animation: notificationEnter 0.4s ease forwards;
+}
+
+/* ================= NOTIFICATION ICON ================= */
+
+.notification-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 19px;
+    flex-shrink: 0;
+}
+
+/* ================= SUCCESS ================= */
+
+.notification-success {
+    border-left-color: #388E5B;
+}
+
+.notification-success .notification-icon {
+    color: #388E5B;
+}
+
+/* ================= ERROR ================= */
+
+.notification-error {
+    border-left-color: #C0392B;
+}
+
+.notification-error .notification-icon {
+    color: #C0392B;
+}
+
+/* ================= WARNING ================= */
+
+.notification-warning {
+    border-left-color: #D69E2E;
+}
+
+.notification-warning .notification-icon {
+    color: #D69E2E;
+}
+
+/* ================= INFO ================= */
+
+.notification-info {
+    border-left-color: #755B46;
+}
+
+.notification-info .notification-icon {
+    color: #755B46;
+}
+
+/* ================= MESSAGE TEXT ================= */
+
+.notification-text {
+    display: block;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+/* ================= EXIT ANIMATION ================= */
+
+.notification.hide {
+    animation: notificationExit 0.5s ease forwards;
+}
+
+/* ================= ANIMATIONS ================= */
+
+@keyframes notificationEnter {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes notificationExit {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 576px) {
+
+    .notification-container {
+        top: 85px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+
+        width: calc(100% - 30px);
+    }
+
+    .notification {
+        padding: 14px 16px;
+        font-size: 13px;
+    }
+}
+
+
+/* ================= FORCE TOP-CENTER POSITION ================= */
+
+body .notification-container {
+    position: fixed !important;
+
+    top: 100px !important;
+    left: 50% !important;
+    right: auto !important;
+
+    width: min(380px, calc(100% - 30px)) !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    transform: translateX(-50%) !important;
+
+    z-index: 999999 !important;
+}
+
+body .notification {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 576px) {
+    body .notification-container {
+        top: 85px !important;
+    }
+}
+
+
+
+/* ================= CLOSE BUTTON ================= */
+
+.notification-close {
+    margin-left: auto;
+    padding: 0;
+
+    border: none;
+    background: transparent;
+
+    color: #8A8179;
+    font-family: Arial, sans-serif;
+    font-size: 23px;
+    line-height: 1;
+
+    cursor: pointer;
+    flex-shrink: 0;
+
+    transition: color 0.2s ease;
+}
+
+.notification-close:hover {
+    color: #29231F;
+}
+
+.notification-close:focus-visible {
+    outline: 2px solid #755B46;
+    outline-offset: 3px;
+}
+
+
+/* Make notification close button clickable */
+
+.notification {
+    pointer-events: auto;
+}
+
+.notification-close {
+    pointer-events: auto;
+    position: relative;
+    z-index: 2;
+    cursor: pointer;
+}
+ 

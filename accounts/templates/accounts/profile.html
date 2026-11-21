@@ -13,6 +13,9 @@
     <link rel="stylesheet"
           href="{% static 'accounts/css/profile.css' %}">
 
+    <link rel="stylesheet"
+          href="{% static 'storefront/css/notifications.css' %}">
+
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&display=swap"
           rel="stylesheet">
 
@@ -21,6 +24,42 @@
 </head>
 
 <body>
+
+    <!-- POPUP NOTIFICATIONS -->
+
+    {% if messages %}
+    <div class="notification-container" id="notificationContainer">
+        {% for message in messages %}
+        <div class="notification notification-{{ message.tags }}">
+
+            <span class="notification-icon">
+                {% if 'success' in message.tags %}
+                    <i class="fa-solid fa-circle-check"></i>
+                {% elif 'error' in message.tags %}
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                {% elif 'warning' in message.tags %}
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                {% else %}
+                    <i class="fa-solid fa-circle-info"></i>
+                {% endif %}
+            </span>
+
+            <span class="notification-text">{{ message }}</span>
+
+            <button
+                type="button"
+                class="notification-close"
+                aria-label="Close notification"
+            >
+                &times;
+            </button>
+
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- HEADER -->
 
     <header class="profile-header">
 
@@ -35,33 +74,26 @@
 
     </header>
 
-
     <main class="profile-page">
 
         <div class="profile-container">
 
-            <!-- Page Heading -->
+            <!-- PAGE HEADING -->
 
             <div class="page-heading">
                 <span>MY ACCOUNT</span>
                 <h1>My Profile</h1>
                 <p>Manage your personal information and account.</p>
             </div>
-{% if messages %}
-    <div class="profile-messages">
-        {% for message in messages %}
-            <div class="profile-message {{ message.tags }}">
-                {{ message }}
-            </div>
-        {% endfor %}
-    </div>
-{% endif %}
-            
-            <!-- Profile Card -->
+
+            <!-- PROFILE CARD -->
 
             <section class="profile-card">
 
+                <!-- PROFILE HEADER -->
+
                 <div class="profile-top">
+
                     <div class="profile-avatar">
 
                         {% if profile_user.profile_image %}
@@ -89,25 +121,25 @@
 
                 </div>
 
-
                 <div class="profile-divider"></div>
 
-
-                <!-- Personal Information -->
+                <!-- PERSONAL INFORMATION -->
 
                 <div class="profile-section">
 
                     <div class="section-heading">
-    <h3>Personal Information</h3>
 
-    <a href="{% url 'accounts:edit_profile' %}" class="edit-profile-link">
-        <i class="fa-regular fa-pen-to-square"></i>
-        Edit Profile
-    </a>
-</div>
+                        <h3>Personal Information</h3>
 
+                        <a href="{% url 'accounts:edit_profile' %}"
+                           class="edit-profile-link">
 
+                            <i class="fa-regular fa-pen-to-square"></i>
+                            Edit Profile
 
+                        </a>
+
+                    </div>
 
                     <div class="information-group">
 
@@ -121,81 +153,86 @@
 
                         </div>
 
-
                         <div class="info-item">
-    <span class="info-label">Email Address</span>
 
-    <span class="info-value">
-        {{ profile_user.email }}
-    </span>
+                            <span class="info-label">Email Address</span>
 
-    <a href="{% url 'accounts:request_email_change' %}"
-       class="edit-profile-link">
-        Edit Email
-    </a>
-</div>
+                            <span class="info-value">
+                                {{ profile_user.email }}
+                            </span>
+
+                        </div>
 
                     </div>
 
                 </div>
 
-
-<div class="profile-divider"></div>
-
-<div class="profile-section">
-
-    <div class="section-heading">
-        <h3>My Addresses</h3>
-        <i class="fa-solid fa-location-dot"></i>
-    </div>
-
-    <p>
-        Manage your saved delivery addresses.
-    </p>
-
-    <a href="{% url 'accounts:address_list' %}"
-       class="edit-profile-link">
-
-        <i class="fa-solid fa-location-dot"></i>
-        Manage Addresses
-
-    </a>
-
-</div>
-
                 <div class="profile-divider"></div>
-<div class="profile-divider"></div>
 
-<!-- PASSWORD MANAGEMENT -->
-
-<div class="profile-section">
-
-    <div class="section-heading">
-        <h3>Password & Security</h3>
-        <i class="fa-solid fa-lock"></i>
-    </div>
-
-    <p class="security-description">
-        Keep your account secure by updating your password regularly.
-    </p>
-
-    <a href="{% url 'accounts:change_password' %}"
-       class="edit-profile-link">
-
-        <i class="fa-solid fa-key"></i>
-        Change Password
-
-    </a>
-
-</div>
-
-                <!-- Account Information -->
+                <!-- ADDRESS MANAGEMENT -->
 
                 <div class="profile-section">
 
                     <div class="section-heading">
+
+                        <h3>My Addresses</h3>
+
+                        <i class="fa-solid fa-location-dot"></i>
+
+                    </div>
+
+                    <p>
+                        Manage your saved delivery addresses.
+                    </p>
+
+                    <a href="{% url 'accounts:address_list' %}"
+                       class="edit-profile-link">
+
+                        <i class="fa-solid fa-location-dot"></i>
+                        Manage Addresses
+
+                    </a>
+
+                </div>
+
+                <div class="profile-divider"></div>
+
+                <!-- PASSWORD MANAGEMENT -->
+
+                <div class="profile-section">
+
+                    <div class="section-heading">
+
+                        <h3>Password & Security</h3>
+
+                        <i class="fa-solid fa-lock"></i>
+
+                    </div>
+
+                    <p class="security-description">
+                        Keep your account secure by updating your password regularly.
+                    </p>
+
+                    <a href="{% url 'accounts:change_password' %}"
+                       class="edit-profile-link">
+
+                        <i class="fa-solid fa-key"></i>
+                        Change Password
+
+                    </a>
+
+                </div>
+
+                <!-- ACCOUNT INFORMATION -->
+
+                <div class="profile-section">
+
+                    <div class="section-heading">
+
                         <h3>Account Information</h3>
+
                         <i class="fa-solid fa-shield-halved"></i>
+
                     </div>
 
                     <div class="information-group">
@@ -225,11 +262,9 @@
 
                 </div>
 
-
                 <div class="profile-divider"></div>
 
-
-                <!-- Logout -->
+                <!-- LOGOUT -->
 
                 <div class="logout-section">
 
@@ -262,7 +297,6 @@
 
             </section>
 
-
             <div class="profile-footer">
                 <p>Thank you for being part of Shristi.</p>
             </div>
@@ -271,6 +305,7 @@
 
     </main>
 
-</body>
+    <script src="{% static 'storefront/js/notifications.js' %}"></script>
 
+</body>
 </html>

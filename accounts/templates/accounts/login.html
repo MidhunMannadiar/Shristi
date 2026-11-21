@@ -1,6 +1,7 @@
 
 {% load static %}
 {% load socialaccount %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,12 +12,61 @@
 
     <link rel="stylesheet" href="{% static 'accounts/css/authentication.css' %}">
 
+    <!-- Popup Notification CSS -->
+    <link rel="stylesheet" href="{% static 'storefront/css/notifications.css' %}">
+
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 
 <body>
+
+    <!-- ================= POPUP NOTIFICATIONS ================= -->
+
+    {% if messages %}
+        <div class="notification-container" id="notificationContainer">
+
+            {% for message in messages %}
+
+                <div class="notification notification-{{ message.tags }}">
+
+                    <span class="notification-icon">
+
+                        {% if 'success' in message.tags %}
+                            <i class="fa-solid fa-circle-check"></i>
+
+                        {% elif 'error' in message.tags %}
+                            <i class="fa-solid fa-circle-exclamation"></i>
+
+                        {% elif 'warning' in message.tags %}
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+
+                        {% else %}
+                            <i class="fa-solid fa-circle-info"></i>
+                        {% endif %}
+
+                    </span>
+
+                    <span class="notification-text">
+    {{ message }}
+</span>
+
+<button type="button"
+        class="notification-close"
+        aria-label="Close notification">
+    &times;
+</button>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+    {% endif %}
+
+
+    <!-- ================= LOGIN PAGE ================= -->
 
     <main class="auth-page">
 
@@ -29,19 +79,6 @@
                     <span>WELCOME BACK</span>
                 </div>
 
-{% if messages %}
-    <div class="login-messages">
-        {% for message in messages %}
-
-            {% if 'login' in message.tags %}
-                <div class="login-message {{ message.tags }}">
-                    {{ message }}
-                </div>
-            {% endif %}
-
-        {% endfor %}
-    </div>
-{% endif %}
                 <div class="auth-heading">
                     <h1>Welcome Back</h1>
                     <p>Login to continue exploring beautiful handmade creations.</p>
@@ -53,6 +90,7 @@
 
                     <div class="auth-input-group">
                         <label for="email">Email Address</label>
+
                         <input
                             type="email"
                             id="email"
@@ -64,6 +102,7 @@
 
                     <div class="auth-input-group">
                         <label for="password">Password</label>
+
                         <input
                             type="password"
                             id="password"
@@ -85,22 +124,34 @@
 
                 </form>
 
+
+                <!-- ================= DIVIDER ================= -->
+
                 <div class="auth-divider">
                     <span>OR</span>
                 </div>
 
-                <form method="POST" action="{% provider_login_url 'google' %}">
-    {% csrf_token %}
 
-    <button type="submit" class="google-auth-button">
-        <i class="fa-brands fa-google"></i>
-        Continue with Google
-    </button>
-</form>
+                <!-- ================= GOOGLE LOGIN ================= -->
+
+                <form method="POST" action="{% provider_login_url 'google' %}">
+
+                    {% csrf_token %}
+
+                    <button type="submit" class="google-auth-button">
+                        <i class="fa-brands fa-google"></i>
+                        Continue with Google
+                    </button>
+
+                </form>
+
+
+                <!-- ================= SIGNUP LINK ================= -->
 
                 <div class="auth-switch-link">
                     <p>
                         Don't have an account?
+
                         <a href="{% url 'accounts:customer_signup' %}">
                             Create Account
                         </a>
@@ -112,6 +163,11 @@
         </section>
 
     </main>
+
+
+    <!-- ================= POPUP NOTIFICATION JS ================= -->
+
+    <script src="{% static 'storefront/js/notifications.js' %}"></script>
 
 </body>
 </html>

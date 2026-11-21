@@ -11,12 +11,50 @@
 
     <link rel="stylesheet" href="{% static 'accounts/css/address.css' %}">
 
+    <!-- Shared Popup Notification CSS -->
+    <link rel="stylesheet"
+          href="{% static 'storefront/css/notifications.css' %}">
+
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 
 <body>
+
+<!-- Popup Notifications -->
+{% if messages %}
+<div class="notification-container" id="notificationContainer">
+
+    {% for message in messages %}
+    <div class="notification notification-{{ message.tags }}">
+
+        <span class="notification-icon">
+            {% if 'success' in message.tags %}
+                <i class="fa-solid fa-circle-check"></i>
+            {% elif 'error' in message.tags %}
+                <i class="fa-solid fa-circle-exclamation"></i>
+            {% elif 'warning' in message.tags %}
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            {% else %}
+                <i class="fa-solid fa-circle-info"></i>
+            {% endif %}
+        </span>
+
+        <span class="notification-text">{{ message }}</span>
+
+        <button type="button"
+                class="notification-close"
+                aria-label="Close notification">
+            &times;
+        </button>
+
+    </div>
+    {% endfor %}
+
+</div>
+{% endif %}
+
 
 <header class="address-header">
     <a href="{% url 'storefront:home' %}" class="brand-logo">
@@ -46,15 +84,6 @@
                 Add New Address
             </a>
         </div>
-
-
-        {% if messages %}
-            <div class="address-messages">
-                {% for message in messages %}
-                    <p>{{ message }}</p>
-                {% endfor %}
-            </div>
-        {% endif %}
 
 
         {% if addresses %}
@@ -151,6 +180,9 @@
     </div>
 
 </main>
+
+<!-- Shared Popup Notification JavaScript -->
+<script src="{% static 'storefront/js/notifications.js' %}"></script>
 
 </body>
 </html>

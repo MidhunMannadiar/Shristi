@@ -451,7 +451,9 @@ def forgot_password(request):
 
 
 
+
 def verify_otp(request):
+
     pending_email_change = request.session.get("pending_email_change")
     pending_signup = request.session.get("pending_signup")
     pending_password_reset = request.session.get("pending_password_reset")
@@ -464,20 +466,24 @@ def verify_otp(request):
             or pending_email_change.get("user_id") != request.user.id
         ):
             request.session.pop("pending_email_change", None)
+
             messages.error(
                 request,
                 "Your email change session has expired. Please try again."
             )
+
             return redirect("accounts:customer_login")
 
         email = pending_email_change["email"]
         purpose = EmailVerification.Purpose.EMAIL_CHANGE
 
     elif pending_signup:
+
         email = pending_signup["email"]
         purpose = EmailVerification.Purpose.SIGNUP
 
     elif pending_password_reset:
+
         email = pending_password_reset["email"]
         purpose = EmailVerification.Purpose.PASSWORD_RESET
 
@@ -486,17 +492,26 @@ def verify_otp(request):
             request,
             "Your verification session has expired. Please try again."
         )
+
         return redirect("accounts:customer_login")
 
+
+    # Handle OTP submission
     if request.method == "POST":
+
         entered_otp = request.POST.get("otp", "").strip()
 
         if len(entered_otp) != 6 or not entered_otp.isdigit():
+
             messages.error(
                 request,
                 "Please enter a valid 6-digit verification code."
             )
-            return render(request, "accounts/verify_otp.html")
+
+            return render(
+                request,
+                "accounts/verify_otp.html"
+            )
 
         is_verified, message = verify_otp_code(
             email,
@@ -514,16 +529,20 @@ def verify_otp(request):
                 ).exclude(pk=request.user.pk).exists():
 
                     request.session.pop("pending_email_change", None)
+
                     messages.error(
                         request,
                         "This email address is already registered."
                     )
+
                     return redirect("accounts:customer_profile")
 
                 with transaction.atomic():
+
                     user = User.objects.select_for_update().get(
                         pk=request.user.pk
                     )
+
                     user.email = email
                     user.save(update_fields=["email"])
 
@@ -533,26 +552,47 @@ def verify_otp(request):
                     request,
                     "Your email address has been updated successfully."
                 )
+
                 return redirect("accounts:customer_profile")
+
 
             # Complete signup verification
             elif purpose == EmailVerification.Purpose.SIGNUP:
+
                 request.session["signup_email_verified"] = email
+
                 messages.success(request, message)
+
                 return redirect("accounts:set_password")
+
 
             # Complete password reset verification
             elif purpose == EmailVerification.Purpose.PASSWORD_RESET:
+
                 request.session["password_reset_verified"] = email
+
                 messages.success(
                     request,
                     "Email verified successfully. You can now reset your password."
                 )
+
                 return redirect("accounts:set_password")
 
+
+        # Invalid or expired OTP
         messages.error(request, message)
 
-    return render(request, "accounts/verify_otp.html")
+        return render(
+            request,
+            "accounts/verify_otp.html"
+        )
+
+
+    return render(
+        request,
+        "accounts/verify_otp.html"
+    )
+
 
 
 
