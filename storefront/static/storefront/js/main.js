@@ -103,102 +103,158 @@ productThumbnails.forEach(function (thumbnail) {
 
 
 
+
+
+
 /* =========================================
-   PRODUCT DETAIL - QUANTITY SELECTOR
+   PRODUCT DETAIL - STOCK-BASED QUANTITY
 ========================================= */
 
 document.addEventListener("DOMContentLoaded", function () {
 
     const productQuantity = document.getElementById("productQuantity");
     const cartQuantity = document.getElementById("cartQuantity");
+
     const minusButton = document.getElementById("quantityMinus");
     const plusButton = document.getElementById("quantityPlus");
+
+    const addToCartButton = document.getElementById("addToCartButton");
+    const cartForm = document.querySelector(".add-to-cart-form");
 
     if (!productQuantity || !cartQuantity) {
         return;
     }
 
-    const minimum = parseInt(productQuantity.min) || 1;
-    const maximum = parseInt(productQuantity.max) || 0;
+    const stock = Number(productQuantity.dataset.stock);
 
     function updateQuantity(value) {
 
-        let quantity = parseInt(value);
+        let quantity = Number(value);
 
-        if (isNaN(quantity)) {
-            quantity = minimum;
+        if (!Number.isInteger(quantity) || quantity < 1) {
+            quantity = 1;
         }
 
-        quantity = Math.max(minimum, Math.min(quantity, maximum));
+        if (quantity > stock) {
+            quantity = stock;
+        }
 
         productQuantity.value = quantity;
         cartQuantity.value = quantity;
 
-        // Disable buttons at quantity limits
         if (minusButton) {
-            minusButton.disabled = quantity <= minimum;
+            minusButton.disabled = quantity <= 1 || stock === 0;
         }
 
         if (plusButton) {
-            plusButton.disabled = quantity >= maximum;
+            plusButton.disabled = stock === 0;
+        }
+
+        if (addToCartButton) {
+            addToCartButton.disabled = stock === 0;
         }
     }
 
-    // Decrease quantity
-    if (minusButton) {
-        minusButton.addEventListener("click", function () {
+    // DECREASE QUANTITY
+    minusButton?.addEventListener("click", function () {
 
-            const current = parseInt(productQuantity.value) || minimum;
+        const currentQuantity = Number(productQuantity.value);
 
-            if (current > minimum) {
-                updateQuantity(current - 1);
-            }
+        if (currentQuantity > 1) {
+            updateQuantity(currentQuantity - 1);
+        }
 
-        });
-    }
+    });
 
-    // Increase quantity
-    if (plusButton) {
-        plusButton.addEventListener("click", function () {
+    // INCREASE QUANTITY
+    plusButton?.addEventListener("click", function () {
 
-            const current = parseInt(productQuantity.value) || minimum;
+        const currentQuantity = Number(productQuantity.value);
 
-            if (current < maximum) {
-                updateQuantity(current + 1);
-            }
+        if (currentQuantity >= stock) {
+            showStockToast(`Only ${stock} items left in stock!`);
+            return;
+        }
 
-        });
-    }
+        updateQuantity(currentQuantity + 1);
 
-    // Handle manual quantity input
+    });
+
+    // MANUAL QUANTITY INPUT
     productQuantity.addEventListener("input", function () {
-        if (productQuantity.value !== "") {
-            const value = parseInt(productQuantity.value);
 
-            if (!isNaN(value)) {
-                cartQuantity.value = Math.max(
-                    minimum,
-                    Math.min(value, maximum)
-                );
-            }
+        if (productQuantity.value === "") {
+            return;
         }
+
+        const quantity = Number(productQuantity.value);
+
+        if (!Number.isInteger(quantity) || quantity < 1) {
+            showStockToast("Please enter a valid quantity.");
+            return;
+        }
+
+        if (quantity > stock) {
+            updateQuantity(stock);
+            showStockToast(`Only ${stock} items left in stock!`);
+            return;
+        }
+
+        updateQuantity(quantity);
+
     });
 
-    productQuantity.addEventListener("change", function () {
-        updateQuantity(productQuantity.value);
+    // INPUT BLUR
+    productQuantity.addEventListener("blur", function () {
+
+        if (productQuantity.value === "") {
+            updateQuantity(stock > 0 ? 1 : 0);
+        }
+
     });
 
-    // Initial quantity
-    if (maximum >= minimum) {
-        updateQuantity(productQuantity.value);
+    // ADD TO CART VALIDATION
+    cartForm?.addEventListener("submit", function (event) {
+
+        const quantity = Number(productQuantity.value);
+
+        if (
+            stock <= 0 ||
+            !Number.isInteger(quantity) ||
+            quantity < 1 ||
+            quantity > stock
+        ) {
+
+            event.preventDefault();
+
+            showStockToast(
+                stock <= 0
+                    ? "This product is out of stock."
+                    : `Only ${stock} items left in stock!`
+            );
+
+            return;
+        }
+
+        cartQuantity.value = quantity;
+
+    });
+
+    // INITIALIZE
+    if (stock > 0) {
+        updateQuantity(1);
     } else {
-        productQuantity.disabled = true;
+        productQuantity.value = 0;
+        cartQuantity.value = 0;
 
-        if (minusButton) minusButton.disabled = true;
-        if (plusButton) plusButton.disabled = true;
+        if (addToCartButton) {
+            addToCartButton.disabled = true;
+        }
     }
 
 });
+
+
 
 
 
@@ -627,3 +683,34 @@ document.addEventListener("DOMContentLoaded", function () {
     updateCategories();
 
 });
+
+function showStockToast(message) {
+    let container = document.querySelector(".notification-container");
+
+    if (!container) {
+        container = document.createElement("div");
+        container.className = "notification-container";
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement("div");
+    toast.className = "notification notification-warning";
+
+    toast.innerHTML = `
+        <span class="notification-icon">⚠</span>
+        <span class="notification-text"></span>
+        <button type="button" class="notification-close">&times;</button>
+    `;
+
+    toast.querySelector(".notification-text").textContent = message;
+    container.appendChild(toast);
+
+    const closeToast = () => {
+        toast.classList.add("hide");
+        setTimeout(() => toast.remove(), 500);
+    };
+
+    toast.querySelector(".notification-close").addEventListener("click", closeToast);
+
+    setTimeout(closeToast, 4000);
+}

@@ -83,21 +83,37 @@
                                 </span>
                             {% endif %}
 
-                            
-                            <form method="POST"
-                                action="{% url 'cart:add_to_cart' product.id %}"
-                                class="wishlist-add-cart-form">
 
-                                {% csrf_token %}
+                            {% if product.stock > 0 %}
 
-                                <input type="hidden" name="quantity" value="1">
+                                <form method="POST"
+                                      action="{% url 'cart:add_to_cart' product.id %}"
+                                      class="wishlist-add-cart-form">
 
-                                <button type="submit" class="wishlist-view-button">
-                                    <i class="fa-solid fa-bag-shopping"></i>
-                                    Add to Cart
+                                    {% csrf_token %}
+
+                                    <input type="hidden"
+                                           name="quantity"
+                                           value="1">
+
+                                    <button type="submit"
+                                            class="wishlist-view-button">
+                                        <i class="fa-solid fa-bag-shopping"></i>
+                                        Add to Cart
+                                    </button>
+
+                                </form>
+
+                            {% else %}
+
+                                <button type="button"
+                                        class="wishlist-view-button wishlist-out-of-stock-button"
+                                        disabled>
+                                    <i class="fa-solid fa-ban"></i>
+                                    Out of Stock
                                 </button>
 
-                            </form>
+                            {% endif %}
 
                         </div>
 
@@ -133,4 +149,3 @@
 </section>
 
 {% endblock %}
-

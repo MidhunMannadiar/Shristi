@@ -3,384 +3,419 @@
 {% load static %}
 
 {% block title %}{{ product.name }} | Shristi{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'storefront/css/product_detail.css' %}">
 {% endblock %}
+
 {% block content %}
 
 <section class="product-detail-section">
 
+    <div class="product-main-layout">
 
-<div class="product-main-layout">
+        <!-- LEFT: PRODUCT IMAGE GALLERY -->
+        <div class="product-gallery">
 
-    <!-- LEFT: PRODUCT IMAGE GALLERY -->
-    <div class="product-gallery">
+            <div class="product-image-viewer">
 
-        
-        <div class="product-image-viewer">
+                <div class="product-main-image">
+                    {% if product.main_image %}
+                        <img
+                            src="{{ product.main_image.url }}"
+                            alt="{{ product.name }}"
+                            id="mainProductImage"
+                        >
+                    {% else %}
+                        <div class="no-product-image">
+                            No Image Available
+                        </div>
+                    {% endif %}
+                </div>
 
-            <div class="product-main-image">
-                {% if product.main_image %}
-                    <img
-                        src="{{ product.main_image.url }}"
-                        alt="{{ product.name }}"
-                        id="mainProductImage"
-                    >
-                {% else %}
-                    <div class="no-product-image">
-                        No Image Available
-                    </div>
-                {% endif %}
+                <!-- Zoom Preview Panel -->
+                <div class="product-zoom-preview" id="productZoomPreview"></div>
+
             </div>
 
-            <!-- Zoom Preview Panel -->
-            <div class="product-zoom-preview" id="productZoomPreview"></div>
+            <!-- HORIZONTAL THUMBNAILS -->
+            <div class="product-thumbnail-list">
+
+                {% if product.main_image %}
+                    <button
+                        type="button"
+                        class="product-thumbnail active"
+                        data-image="{{ product.main_image.url }}"
+                    >
+                        <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
+                    </button>
+                {% endif %}
+
+                {% for gallery in gallery_images %}
+                    <button
+                        type="button"
+                        class="product-thumbnail"
+                        data-image="{{ gallery.image.url }}"
+                    >
+                        <img
+                            src="{{ gallery.image.url }}"
+                            alt="{{ gallery.alt_text|default:product.name }}"
+                        >
+                    </button>
+                {% endfor %}
+
+            </div>
 
         </div>
 
+        <!-- RIGHT: PRODUCT INFORMATION -->
+        <div class="product-information">
 
-        <!-- HORIZONTAL THUMBNAILS -->
-        <div class="product-thumbnail-list">
+            <p class="product-category">
+                {{ product.category.name }}
+            </p>
 
-            {% if product.main_image %}
-                <button
-                    type="button"
-                    class="product-thumbnail active"
-                    data-image="{{ product.main_image.url }}"
+            <h1 class="product-name">
+                {{ product.name }}
+            </h1>
+
+            <!-- Rating will be added later -->
+
+            <!-- PRODUCT PRICE -->
+            <div class="product-price">
+
+                <span class="selling-price">
+                    ₹{{ product.selling_price }}
+                </span>
+
+                {% if product.discount_percentage > 0 %}
+                    <del class="original-price">
+                        ₹{{ product.original_price }}
+                    </del>
+
+                    <span class="discount-badge">
+                        {{ product.discount_percentage }}% OFF
+                    </span>
+                {% endif %}
+
+            </div>
+
+            <!-- STOCK STATUS -->
+            <div class="product-stock-status">
+                {% if product.stock == 0 %}
+                    <span class="out-of-stock">Out of Stock</span>
+                {% elif product.stock <= 5 %}
+                    <span class="low-stock-warning">
+                        Only {{ product.stock }} left
+                    </span>
+                {% else %}
+                    <span class="in-stock">In Stock</span>
+                {% endif %}
+            </div>
+
+            <!-- PURCHASE ACTIONS -->
+            <div class="product-purchase-actions">
+
+                <div class="product-quantity">
+
+                    <label for="productQuantity">Quantity</label>
+
+                    <div class="quantity-selector">
+
+                        <button
+                            type="button"
+                            id="quantityMinus"
+                            {% if product.stock == 0 %}disabled{% endif %}
+                        >
+                            −
+                        </button>
+
+                        <input
+                            type="number"
+                            id="productQuantity"
+                            value="{% if product.stock > 0 %}1{% else %}0{% endif %}"
+                            min="1"
+                            max="{{ product.stock }}"
+                            data-stock="{{ product.stock }}"
+                            {% if product.stock == 0 %}disabled{% endif %}
+                        >
+
+                        <button
+                            type="button"
+                            id="quantityPlus"
+                            {% if product.stock == 0 %}disabled{% endif %}
+                        >
+                            +
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <!-- ADD TO CART FORM -->
+                <form
+                    method="POST"
+                    action="{% url 'cart:add_to_cart' product.id %}"
+                    class="add-to-cart-form"
                 >
-                    <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
-                </button>
-            {% endif %}
 
-            {% for gallery in gallery_images %}
-                <button
-                    type="button"
-                    class="product-thumbnail"
-                    data-image="{{ gallery.image.url }}"
-                >
-                    <img
-                        src="{{ gallery.image.url }}"
-                        alt="{{ gallery.alt_text|default:product.name }}"
+                    {% csrf_token %}
+
+                    <input
+                        type="hidden"
+                        name="quantity"
+                        id="cartQuantity"
+                        value="{% if product.stock > 0 %}1{% else %}0{% endif %}"
                     >
+
+                    <button
+                        type="submit"
+                        class="add-to-bag-button"
+                        id="addToCartButton"
+                        {% if product.stock == 0 %}disabled{% endif %}
+                    >
+                        {% if product.stock == 0 %}
+                            Out of Stock
+                        {% else %}
+                            Add to Bag
+                        {% endif %}
+                    </button>
+
+                </form>
+
+                <!-- BUY NOW -->
+                <button
+                    type="button"
+                    class="buy-now-button"
+                    {% if product.stock == 0 %}disabled{% endif %}
+                >
+                    Buy Now
                 </button>
+
+                <!-- WISHLIST FORM -->
+                <form
+                    method="POST"
+                    action="{% url 'wishlist:add_wishlist' product.id %}"
+                    class="product-wishlist-form"
+                >
+
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="product-wishlist-button"
+                        aria-label="Add to wishlist"
+                    >
+                        <i class="fa-regular fa-heart"></i>
+                        Add to Wishlist
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- PRODUCT DESCRIPTION SECTION -->
+    <section class="product-description-section">
+
+        <div class="section-heading">
+            <span class="section-subtitle">THE STORY BEHIND THE PIECE</span>
+            <h2>About This Piece</h2>
+        </div>
+
+        <div class="product-description-content">
+
+            <p class="product-short-description">
+                {{ product.description|truncatewords:30 }}
+            </p>
+
+            <div class="product-full-description">
+                <p>{{ product.description|linebreaks }}</p>
+            </div>
+
+            <button
+                type="button"
+                class="description-toggle"
+                id="descriptionToggle"
+            >
+                Read More
+                <i class="fa-solid fa-chevron-down"></i>
+            </button>
+
+        </div>
+
+    </section>
+
+    <!-- CUSTOMER REVIEWS SECTION -->
+    <section class="product-reviews-section">
+
+        <div class="section-heading">
+            <span class="section-subtitle">CUSTOMER EXPERIENCES</span>
+            <h2>What Our Customers Say</h2>
+        </div>
+
+        <!-- REVIEW SUMMARY -->
+        <div class="review-summary">
+
+            <div class="review-average">
+                <h3>Customer Reviews</h3>
+
+                <div class="review-stars">
+                    <i class="fa-regular fa-star"></i>
+                    <i class="fa-regular fa-star"></i>
+                    <i class="fa-regular fa-star"></i>
+                    <i class="fa-regular fa-star"></i>
+                    <i class="fa-regular fa-star"></i>
+                </div>
+
+                <p>Customer ratings will appear here</p>
+            </div>
+
+        </div>
+
+        <!-- CUSTOMER REVIEW LIST -->
+        <div class="customer-review-list">
+
+            <div class="no-reviews-message">
+                <i class="fa-regular fa-comment-dots"></i>
+                <p>No reviews yet. Be the first to share your experience!</p>
+            </div>
+
+        </div>
+
+        <!-- WRITE A REVIEW -->
+        <div class="write-review-section">
+
+            <h3>Share Your Experience</h3>
+
+            <p class="review-form-description">
+                We'd love to hear what you think about this piece.
+            </p>
+
+            <div class="review-form">
+
+                <label>Your Rating</label>
+
+                <div class="review-star-selector">
+                    <i class="fa-regular fa-star"></i>
+                    <i class="fa-regular fa-star"></i>
+                    <i class="fa-regular fa-star"></i>
+                    <i class="fa-regular fa-star"></i>
+                    <i class="fa-regular fa-star"></i>
+                </div>
+
+                <label for="reviewTitle">Review Title</label>
+
+                <input
+                    type="text"
+                    id="reviewTitle"
+                    placeholder="Give your review a title"
+                >
+
+                <label for="reviewDescription">Your Review</label>
+
+                <textarea
+                    id="reviewDescription"
+                    rows="5"
+                    placeholder="Tell us about your experience..."
+                ></textarea>
+
+                <button type="button" class="submit-review-button">
+                    Submit Review
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- SIMILAR PRODUCTS SECTION -->
+    <section class="similar-products-section">
+
+        <div class="similar-products-heading">
+            <span class="section-subtitle">DISCOVER MORE</span>
+            <h2>You May Also Like</h2>
+            <p>Discover more beautiful pieces made with care.</p>
+        </div>
+
+        <div class="similar-products-grid">
+
+            {% for similar in similar_products %}
+
+                <div class="shop-product-card">
+
+                    <a
+                        href="{% url 'storefront:product_detail' similar.slug %}"
+                        class="shop-product-image"
+                    >
+
+                        {% if similar.main_image %}
+                            <img
+                                src="{{ similar.main_image.url }}"
+                                alt="{{ similar.name }}"
+                            >
+                        {% else %}
+                            <div class="no-product-image">
+                                No Image Available
+                            </div>
+                        {% endif %}
+
+                    </a>
+
+                    <div class="shop-product-info">
+
+                        <h3>
+                            <a href="{% url 'storefront:product_detail' similar.slug %}">
+                                {{ similar.name }}
+                            </a>
+                        </h3>
+
+                        <div class="shop-product-price">
+
+                            <span class="selling-price">
+                                ₹{{ similar.selling_price }}
+                            </span>
+
+                            {% if similar.discount_percentage > 0 %}
+
+                                <del class="original-price">
+                                    ₹{{ similar.original_price }}
+                                </del>
+
+                                <span class="discount-badge">
+                                    {{ similar.discount_percentage }}% OFF
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                        <a
+                            href="{% url 'storefront:product_detail' similar.slug %}"
+                            class="add-to-bag-button"
+                        >
+                            View Product
+                        </a>
+
+                    </div>
+
+                </div>
+
+            {% empty %}
+
+                <p class="no-similar-products">
+                    More beautiful pieces are coming soon.
+                </p>
+
             {% endfor %}
 
         </div>
 
-    </div>
-
-
-    <!-- RIGHT: PRODUCT INFORMATION -->
-    <div class="product-information">
-
-        <p class="product-category">
-            {{ product.category.name }}
-        </p>
-
-        <h1 class="product-name">
-            {{ product.name }}
-        </h1>
-
-        <!-- Rating will be added later -->
-
-        <div class="product-price">
-
-            <span class="selling-price">
-                ₹{{ product.selling_price }}
-            </span>
-
-            {% if product.discount_percentage > 0 %}
-                <span class="original-price">
-                    ₹{{ product.original_price }}
-                </span>
-
-                <span class="discount-badge">
-                    {{ product.discount_percentage }}% OFF
-                </span>
-            {% endif %}
-
-        </div>
-
-        <!-- STOCK STATUS -->
-        <div class="product-stock-status">
-
-            {% if product.stock > 0 %}
-                <span class="in-stock">
-                    <i class="fa-solid fa-circle-check"></i>
-                    In Stock
-                </span>
-            {% else %}
-                <span class="out-of-stock">
-                    <i class="fa-solid fa-circle-xmark"></i>
-                    Out of Stock
-                </span>
-            {% endif %}
-
-        </div>
-
-        <!-- PURCHASE ACTIONS -->
-        <div class="product-purchase-actions">
-
-            <div class="product-quantity">
-                <label for="productQuantity">Quantity</label>
-
-                <div class="quantity-selector">
-                    <button type="button" id="quantityMinus">−</button>
-
-                    <input
-                        type="number"
-                        id="productQuantity"
-                        value="1"
-                        min="1"
-                        max="{{ product.stock }}"
-                    >
-
-                    <button type="button" id="quantityPlus">+</button>
-                </div>
-            </div>
-
-
-            <form method="POST"
-                action="{% url 'cart:add_to_cart' product.id %}"
-                class="add-to-cart-form">
-
-                {% csrf_token %}
-
-                <input type="hidden"
-                    name="quantity"
-                    id="cartQuantity"
-                    value="1">
-
-                <button type="submit"
-                        class="add-to-bag-button"
-                        {% if product.stock == 0 %}disabled{% endif %}>
-                    {% if product.stock == 0 %}
-                        Out of Stock
-                    {% else %}
-                        Add to Bag
-                    {% endif %}
-                </button>
-
-            </form>
-
-
-            <button
-                type="button"
-                class="buy-now-button"
-                {% if product.stock == 0 %}disabled{% endif %}
-            >
-                Buy Now
-            </button>
-
-           
-            <form method="POST"
-                action="{% url 'wishlist:add_wishlist' product.id %}"
-                class="product-wishlist-form">
-
-                {% csrf_token %}
-
-                <button
-                    type="submit"
-                    class="product-wishlist-button"
-                    aria-label="Add to wishlist"
-                >
-                    <i class="fa-regular fa-heart"></i>
-                    Add to Wishlist
-                </button>
-
-            </form>
-
-        </div>
-
-    </div>
-
-</div>
-
-<!-- PRODUCT DESCRIPTION SECTION -->
-<section class="product-description-section">
-
-    <div class="section-heading">
-        <span class="section-subtitle">THE STORY BEHIND THE PIECE</span>
-        <h2>About This Piece</h2>
-    </div>
-
-    <div class="product-description-content">
-
-        <p class="product-short-description">
-            {{ product.description|truncatewords:30 }}
-        </p>
-
-        <div class="product-full-description">
-            <p>{{ product.description|linebreaks }}</p>
-        </div>
-
-        <button
-            type="button"
-            class="description-toggle"
-            id="descriptionToggle"
-        >
-            Read More
-            <i class="fa-solid fa-chevron-down"></i>
-        </button>
-
-    </div>
-
-</section>
-
-<!-- CUSTOMER REVIEWS SECTION -->
-<section class="product-reviews-section">
-
-    <div class="section-heading">
-        <span class="section-subtitle">CUSTOMER EXPERIENCES</span>
-        <h2>What Our Customers Say</h2>
-    </div>
-
-    <!-- REVIEW SUMMARY -->
-    <div class="review-summary">
-        <div class="review-average">
-            <h3>Customer Reviews</h3>
-            <div class="review-stars">
-                <i class="fa-regular fa-star"></i>
-                <i class="fa-regular fa-star"></i>
-                <i class="fa-regular fa-star"></i>
-                <i class="fa-regular fa-star"></i>
-                <i class="fa-regular fa-star"></i>
-            </div>
-            <p>Customer ratings will appear here</p>
-        </div>
-    </div>
-
-    <!-- CUSTOMER REVIEW LIST -->
-    <div class="customer-review-list">
-
-        <div class="no-reviews-message">
-            <i class="fa-regular fa-comment-dots"></i>
-            <p>No reviews yet. Be the first to share your experience!</p>
-        </div>
-
-    </div>
-
-    <!-- WRITE A REVIEW -->
-    <div class="write-review-section">
-
-        <h3>Share Your Experience</h3>
-        <p class="review-form-description">
-            We'd love to hear what you think about this piece.
-        </p>
-
-        <div class="review-form">
-
-            <label>Your Rating</label>
-            <div class="review-star-selector">
-                <i class="fa-regular fa-star"></i>
-                <i class="fa-regular fa-star"></i>
-                <i class="fa-regular fa-star"></i>
-                <i class="fa-regular fa-star"></i>
-                <i class="fa-regular fa-star"></i>
-            </div>
-
-            <label for="reviewTitle">Review Title</label>
-            <input
-                type="text"
-                id="reviewTitle"
-                placeholder="Give your review a title"
-            >
-
-            <label for="reviewDescription">Your Review</label>
-            <textarea
-                id="reviewDescription"
-                rows="5"
-                placeholder="Tell us about your experience..."
-            ></textarea>
-
-            <button type="button" class="submit-review-button">
-                Submit Review
-            </button>
-
-        </div>
-
-    </div>
-
-</section>
-
-<!-- SIMILAR PRODUCTS SECTION -->
-<section class="similar-products-section">
-
-    <div class="similar-products-heading">
-        <span class="section-subtitle">DISCOVER MORE</span>
-        <h2>You May Also Like</h2>
-        <p>Discover more beautiful pieces made with care.</p>
-    </div>
-
-
-<div class="similar-products-grid">
-
-    {% for similar in similar_products %}
-
-        <div class="shop-product-card">
-
-            <a href="{% url 'storefront:product_detail' similar.slug %}"
-               class="shop-product-image">
-
-                {% if similar.main_image %}
-                    <img src="{{ similar.main_image.url }}"
-                         alt="{{ similar.name }}">
-                {% else %}
-                    <div class="no-product-image">
-                        No Image Available
-                    </div>
-                {% endif %}
-
-            </a>
-
-            <div class="shop-product-info">
-
-                <h3>
-                    <a href="{% url 'storefront:product_detail' similar.slug %}">
-                        {{ similar.name }}
-                    </a>
-                </h3>
-
-                <div class="shop-product-price">
-
-                    <span class="selling-price">
-                        ₹{{ similar.selling_price }}
-                    </span>
-
-                    {% if similar.discount_percentage > 0 %}
-                        <span class="original-price">
-                            ₹{{ similar.original_price }}
-                        </span>
-
-                        <span class="discount-badge">
-                            {{ similar.discount_percentage }}% OFF
-                        </span>
-                    {% endif %}
-
-                </div>
-
-                <a href="{% url 'storefront:product_detail' similar.slug %}"
-                   class="add-to-bag-button">
-                    View Product
-                </a>
-
-            </div>
-
-        </div>
-
-    {% empty %}
-
-        <p class="no-similar-products">
-            More beautiful pieces are coming soon.
-        </p>
-
-    {% endfor %}
-
-</div>
-
-
-</section>
-
+    </section>
 
 </section>
 

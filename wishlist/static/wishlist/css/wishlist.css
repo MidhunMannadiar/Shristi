@@ -269,3 +269,37 @@
         grid-template-columns: 1fr;
     }
 }
+
+
+/* OUT OF STOCK - DISABLED ADD TO CART BUTTON */
+
+.wishlist-out-of-stock-button {
+    background: #D8D2C9;
+    border: 1px solid #D8D2C9;
+    color: #82786E;
+    cursor: not-allowed;
+    opacity: 0.75;
+    pointer-events: none;
+}
+
+
+/* OUT OF STOCK - DANGER STYLE */
+
+.wishlist-out-of-stock-button {
+    background: #FCE8E5;
+    border: 1px solid #E8B4AE;
+    color: #B94A42;
+
+    cursor: not-allowed;
+    opacity: 1;
+    pointer-events: none;
+}
+
+/* Keep danger styling on hover */
+
+.wishlist-out-of-stock-button:hover {
+    background: #FCE8E5;
+    border-color: #E8B4AE;
+    color: #B94A42;
+}
+

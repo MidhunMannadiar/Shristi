@@ -110,6 +110,7 @@ class Cart:
         CartItem.objects.filter(user=self.user).delete()
 
     def __iter__(self):
+        """Iterate through the customer's cart items."""
 
         cart_items = CartItem.objects.filter(
             user=self.user
@@ -125,6 +126,7 @@ class Cart:
                 "quantity": item.quantity,
                 "unit_price": item.product.selling_price,
                 "total_price": item.subtotal,
+                "is_out_of_stock": item.product.stock <= 0,
             }
 
     def __len__(self):
@@ -140,11 +142,18 @@ class Cart:
         return total_quantity or 0
 
     def get_total_price(self):
+        """Calculate the total price of available products only."""
 
-        from django.db.models import Sum, F, DecimalField, ExpressionWrapper
+        from django.db.models import (
+            Sum,
+            F,
+            DecimalField,
+            ExpressionWrapper
+        )
 
         total = CartItem.objects.filter(
-            user=self.user
+            user=self.user,
+            product__stock__gt=0
         ).aggregate(
             total=Sum(
                 ExpressionWrapper(

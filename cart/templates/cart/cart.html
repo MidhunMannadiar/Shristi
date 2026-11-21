@@ -70,48 +70,60 @@
                         </p>
 
                         <!-- Quantity Controls -->
-                        <form method="POST"
-      action="{% url 'cart:update_cart_ajax' item.product.id %}"
-      class="cart-quantity-form">
+                        {% if item.is_out_of_stock %}
 
-    {% csrf_token %}
+                            <div class="cart-stock-status out-of-stock">
+                                <span>Out of Stock</span>
+                            </div>
 
-    <label>Quantity</label>
+                        {% else %}
 
-    <div class="cart-quantity-control">
-        <button type="button"
-                class="quantity-btn quantity-minus"
-                aria-label="Decrease quantity">−</button>
+                            <form method="POST"
+                                  action="{% url 'cart:update_cart_ajax' item.product.id %}"
+                                  class="cart-quantity-form">
 
-        <input type="number"
-               name="quantity"
-               class="cart-quantity-input"
-               value="{{ item.quantity }}"
-               min="0"
-               max="{{ item.product.stock }}"
-               readonly>
+                                {% csrf_token %}
 
-        <button type="button"
-                class="quantity-btn quantity-plus"
-                aria-label="Increase quantity">+</button>
-    </div>
-</form>
+                                <label>Quantity</label>
+
+                                <div class="cart-quantity-control">
+
+                                    <button type="button"
+                                            class="quantity-btn quantity-minus"
+                                            aria-label="Decrease quantity">−</button>
+
+                                    <input type="number"
+                                           name="quantity"
+                                           class="cart-quantity-input"
+                                           value="{{ item.quantity }}"
+                                           min="0"
+                                           max="{{ item.product.stock }}"
+                                           readonly>
+
+                                    <button type="button"
+                                            class="quantity-btn quantity-plus"
+                                            aria-label="Increase quantity">+</button>
+
+                                </div>
+
+                            </form>
+
+                        {% endif %}
 
                         <!-- Item Actions -->
                         <div class="cart-item-actions">
 
-                            
-                        <form method="POST"
-                            action="{% url 'cart:save_for_later' item.product.id %}">
+                            <form method="POST"
+                                  action="{% url 'cart:save_for_later' item.product.id %}">
 
-                            {% csrf_token %}
+                                {% csrf_token %}
 
-                            <button type="submit" class="save-later-btn">
-                                <i class="fa-regular fa-heart"></i>
-                                Save for Later
-                            </button>
+                                <button type="submit" class="save-later-btn">
+                                    <i class="fa-regular fa-heart"></i>
+                                    Save for Later
+                                </button>
 
-                        </form>
+                            </form>
 
                             <form method="POST"
                                   action="{% url 'cart:remove_from_cart' item.product.id %}">
@@ -134,9 +146,19 @@
 
                         <span>Subtotal</span>
 
-                        <strong class="item-subtotal">
-                            ₹{{ item.total_price|floatformat:2 }}
-                        </strong>
+                        {% if item.is_out_of_stock %}
+
+                            <strong class="out-of-stock-subtotal">
+                                Excluded
+                            </strong>
+
+                        {% else %}
+
+                            <strong class="item-subtotal">
+                                ₹{{ item.total_price|floatformat:2 }}
+                            </strong>
+
+                        {% endif %}
 
                     </div>
 
@@ -150,7 +172,6 @@
                 </a>
 
             </div>
-
 
             <!-- RIGHT: ORDER SUMMARY -->
             <aside class="cart-summary">
@@ -218,6 +239,78 @@
         </div>
 
         {% endif %}
+
+    </div>
+
+    <!-- REMOVE PRODUCT CONFIRMATION MODAL -->
+    <div class="remove-confirmation-overlay"
+         id="removeConfirmationModal"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="removeModalTitle"
+         aria-hidden="true">
+
+        <div class="remove-confirmation-modal">
+
+            <button type="button"
+                    class="modal-close-btn"
+                    id="cancelRemoveIcon"
+                    aria-label="Close confirmation">
+                &times;
+            </button>
+
+            <div class="remove-modal-icon">
+                <i class="fa-regular fa-trash-can"></i>
+            </div>
+
+            <p class="remove-modal-eyebrow">
+                SHOPPING BAG
+            </p>
+
+            <h2 id="removeModalTitle">
+                Remove This Item?
+            </h2>
+
+            <p class="remove-modal-message">
+                Are you sure you want to remove this product
+                from your shopping bag?
+            </p>
+
+            <!-- Selected Product Details -->
+            <div class="remove-product-preview">
+
+                <img src=""
+                     alt="Product image"
+                     id="removeProductImage">
+
+                <div class="remove-product-info">
+
+                    <h3 id="removeProductName"></h3>
+
+                    <p id="removeProductPrice"></p>
+
+                </div>
+
+            </div>
+
+            <!-- Confirmation Actions -->
+            <div class="remove-modal-actions">
+
+                <button type="button"
+                        class="cancel-remove-btn"
+                        id="cancelRemoveButton">
+                    Keep Item
+                </button>
+
+                <button type="button"
+                        class="confirm-remove-btn"
+                        id="confirmRemoveButton">
+                    Yes, Remove
+                </button>
+
+            </div>
+
+        </div>
 
     </div>
 
