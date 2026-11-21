@@ -15,7 +15,7 @@ def home(request):
 
     categories = Category.objects.filter(
         is_active=True
-    ).order_by("-created_at")[:4]
+    ).order_by("-created_at")
 
     contact_form = ContactForm(request.POST or None)
 

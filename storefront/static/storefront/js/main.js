@@ -583,3 +583,47 @@ if (liveSearchInput && searchSuggestions) {
         }
     });
 }
+
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const categoriesGrid = document.getElementById("categoriesGrid");
+    const viewAllBtn = document.getElementById("viewAllCategoriesBtn");
+    const viewAllContainer = document.getElementById("viewAllCategoriesContainer");
+
+    if (!categoriesGrid || !viewAllBtn || !viewAllContainer) {
+        return;
+    }
+
+    const categories = categoriesGrid.querySelectorAll(".category-card");
+
+    const visibleCount = 4;
+    let expanded = false;
+
+    if (categories.length <= visibleCount) {
+        viewAllContainer.style.display = "none";
+        return;
+    }
+
+    function updateCategories() {
+
+        categories.forEach((category, index) => {
+            category.style.display =
+                expanded || index < visibleCount ? "" : "none";
+        });
+
+        viewAllBtn.innerHTML = expanded
+            ? 'Show Less <span aria-hidden="true">↑</span>'
+            : 'View All Categories <span aria-hidden="true">→</span>';
+    }
+
+    viewAllBtn.addEventListener("click", function () {
+
+        expanded = !expanded;
+        updateCategories();
+
+    });
+
+    updateCategories();
+
+});
