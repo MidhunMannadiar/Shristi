@@ -51,17 +51,19 @@
                 {% endfor %}
             </div>
 
-            <div class="customer-form-field">
-                <label for="{{ form.email.id_for_label }}">
-                    Email Address
-                </label>
+            {% if not is_edit %}
+                <div class="customer-form-field">
+                    <label for="{{ form.email.id_for_label }}">
+                        Email Address
+                    </label>
 
-                {{ form.email }}
+                    {{ form.email }}
 
-                {% for error in form.email.errors %}
-                    <small class="customer-field-error">{{ error }}</small>
-                {% endfor %}
-            </div>
+                    {% for error in form.email.errors %}
+                        <small class="customer-field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+            {% endif %}
 
             <!-- Profile Image Upload and Preview -->
 
@@ -246,31 +248,31 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Remove selected or existing image.
-    // Remove selected or existing image.
-removeCheckbox.addEventListener("change", function () {
+    removeCheckbox.addEventListener("change", function () {
 
-    if (this.checked) {
+        if (this.checked) {
 
-        preview.hidden = true;
-        placeholder.hidden = false;
+            preview.hidden = true;
+            placeholder.hidden = false;
 
-        // Clear the selected file.
-        imageInput.value = "";
+            // Clear the selected file.
+            imageInput.value = "";
 
-    } else {
+        } else {
 
-        // Restore the original image if available.
-        const originalImage = preview.dataset.originalImage;
+            // Restore the original image if available.
+            const originalImage = preview.dataset.originalImage;
 
-        if (originalImage) {
-            preview.src = originalImage;
-            preview.hidden = false;
-            placeholder.hidden = true;
+            if (originalImage) {
+                preview.src = originalImage;
+                preview.hidden = false;
+                placeholder.hidden = true;
+            }
+
         }
 
-    }
+    });
 
-});
 });
 </script>
 

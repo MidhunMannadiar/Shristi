@@ -29,6 +29,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import update_session_auth_hash
 from products.models import Category, Product
 from django.db.models.deletion import ProtectedError
+from datetime import timedelta
 
 User = get_user_model()
 
@@ -266,6 +267,58 @@ def customer_status_confirm(request, customer_id, action):
         }
     )
 
+def set_otp_resend_cooldown(request):
+    """Set a 60-second cooldown before another OTP can be requested."""
+
+    request.session["otp_resend_available_at"] = (
+        timezone.now() + timedelta(seconds=60)
+    ).timestamp()
+
+
+def get_otp_page_context(request, email, purpose):
+    """Get the actual OTP expiry and resend countdown values."""
+
+    verification = EmailVerification.objects.filter(
+        email=email,
+        purpose=purpose
+    ).order_by("-created_at").first()
+
+    otp_remaining_seconds = 0
+    otp_status = "No active verification code."
+
+    if verification:
+
+        if verification.is_used:
+            otp_status = "Code is no longer valid."
+
+        else:
+            remaining = (
+                verification.expires_at - timezone.now()
+            ).total_seconds()
+
+            otp_remaining_seconds = max(0, int(remaining))
+
+            if otp_remaining_seconds > 0:
+                otp_status = ""
+            else:
+                otp_status = "OTP Expired"
+
+    resend_available_at = request.session.get(
+        "otp_resend_available_at",
+        0
+    )
+
+    resend_remaining_seconds = max(
+        0,
+        int(float(resend_available_at) - timezone.now().timestamp())
+    )
+
+    return {
+        "otp_remaining_seconds": otp_remaining_seconds,
+        "otp_resend_seconds": resend_remaining_seconds,
+        "otp_status": otp_status,
+    }
+
 
 def customer_signup(request):
 
@@ -294,7 +347,10 @@ def customer_signup(request):
             generate_and_send_otp(
                 email,
                 EmailVerification.Purpose.SIGNUP
-            )
+)
+
+            set_otp_resend_cooldown(request)
+
             print("GENERATING OTP FOR:", email)
             request.session["pending_signup"] = {
                 "full_name": full_name,
@@ -425,6 +481,8 @@ def forgot_password(request):
                 EmailVerification.Purpose.PASSWORD_RESET
             )
 
+            set_otp_resend_cooldown(request)
+
             request.session["pending_password_reset"] = {
                 "email": customer.email
             }
@@ -447,6 +505,7 @@ def forgot_password(request):
             )
 
     return render(request, "accounts/forgot_password.html")
+
 
 
 
@@ -495,6 +554,12 @@ def verify_otp(request):
 
         return redirect("accounts:customer_login")
 
+    # Prepare countdown information
+    otp_context = get_otp_page_context(
+        request,
+        email,
+        purpose
+    )
 
     # Handle OTP submission
     if request.method == "POST":
@@ -510,7 +575,8 @@ def verify_otp(request):
 
             return render(
                 request,
-                "accounts/verify_otp.html"
+                "accounts/verify_otp.html",
+                otp_context
             )
 
         is_verified, message = verify_otp_code(
@@ -555,7 +621,6 @@ def verify_otp(request):
 
                 return redirect("storefront:shop")
 
-
             # Complete signup verification
             elif purpose == EmailVerification.Purpose.SIGNUP:
 
@@ -564,7 +629,6 @@ def verify_otp(request):
                 messages.success(request, message)
 
                 return redirect("accounts:set_password")
-
 
             # Complete password reset verification
             elif purpose == EmailVerification.Purpose.PASSWORD_RESET:
@@ -578,21 +642,117 @@ def verify_otp(request):
 
                 return redirect("accounts:set_password")
 
-
         # Invalid or expired OTP
         messages.error(request, message)
 
-        return render(
+        # Refresh countdown information
+        otp_context = get_otp_page_context(
             request,
-            "accounts/verify_otp.html"
+            email,
+            purpose
         )
 
+        return render(
+            request,
+            "accounts/verify_otp.html",
+            otp_context
+        )
 
     return render(
         request,
-        "accounts/verify_otp.html"
+        "accounts/verify_otp.html",
+        otp_context
     )
 
+
+
+@require_POST
+def resend_otp(request):
+
+    pending_email_change = request.session.get("pending_email_change")
+    pending_signup = request.session.get("pending_signup")
+    pending_password_reset = request.session.get("pending_password_reset")
+
+    # Identify the current verification purpose
+    if pending_email_change:
+
+        if (
+            not request.user.is_authenticated
+            or pending_email_change.get("user_id") != request.user.id
+        ):
+            request.session.pop("pending_email_change", None)
+
+            messages.error(
+                request,
+                "Your verification session has expired. Please try again."
+            )
+
+            return redirect("accounts:customer_login")
+
+        email = pending_email_change["email"]
+        purpose = EmailVerification.Purpose.EMAIL_CHANGE
+
+    elif pending_signup:
+
+        email = pending_signup["email"]
+        purpose = EmailVerification.Purpose.SIGNUP
+
+    elif pending_password_reset:
+
+        email = pending_password_reset["email"]
+        purpose = EmailVerification.Purpose.PASSWORD_RESET
+
+    else:
+
+        messages.error(
+            request,
+            "Your verification session has expired. Please try again."
+        )
+
+        return redirect("accounts:customer_login")
+
+    # Enforce resend cooldown on the server
+    resend_available_at = request.session.get(
+        "otp_resend_available_at",
+        0
+    )
+
+    remaining_seconds = (
+        float(resend_available_at) - timezone.now().timestamp()
+    )
+
+    if remaining_seconds > 0:
+
+        messages.warning(
+            request,
+            f"Please wait {int(remaining_seconds) + 1} seconds before requesting another code."
+        )
+
+        return redirect("accounts:verify_otp")
+
+    # Generate and send a new OTP
+    try:
+
+        generate_and_send_otp(
+            email,
+            purpose
+        )
+
+        set_otp_resend_cooldown(request)
+
+        messages.success(
+            request,
+            "A new verification code has been sent to your email."
+        )
+
+    except Exception:
+
+        messages.error(
+            request,
+            "Unable to resend the verification code. Please try again."
+        )
+
+    return redirect("accounts:verify_otp")
 
 
 
@@ -924,6 +1084,8 @@ def request_email_change(request):
                 EmailVerification.Purpose.EMAIL_CHANGE
             )
 
+            set_otp_resend_cooldown(request)
+
             request.session["pending_email_change"] = {
                 "email": new_email,
                 "user_id": request.user.id,
@@ -1251,6 +1413,7 @@ def customer_create(request):
     )
 
 
+
 @admin_required
 def customer_update(request, customer_id):
 
@@ -1272,7 +1435,6 @@ def customer_update(request, customer_id):
         if form.is_valid():
 
             customer.full_name = form.cleaned_data["full_name"]
-            customer.email = form.cleaned_data["email"]
             customer.is_active = form.cleaned_data["is_active"]
 
             new_profile_image = form.cleaned_data.get("profile_image")
@@ -1292,7 +1454,7 @@ def customer_update(request, customer_id):
                 customer.profile_image = new_profile_image
                 customer.save()
 
-                # Delete the previous image after the new one is saved.
+                # Delete the previous image after the new image is saved.
                 if old_profile_image_name:
                     customer.profile_image.storage.delete(
                         old_profile_image_name
@@ -1327,7 +1489,6 @@ def customer_update(request, customer_id):
         form = CustomerUpdateForm(
             initial={
                 "full_name": customer.full_name,
-                "email": customer.email,
                 "is_active": customer.is_active,
             },
             customer=customer
@@ -1344,6 +1505,7 @@ def customer_update(request, customer_id):
             "is_edit": True,
         }
     )
+
 
 
 @admin_required

@@ -117,26 +117,71 @@
 
                     </div>
 
-                    <button type="submit" class="auth-primary-button">
+                    <button
+                        type="submit"
+                        class="auth-primary-button"
+                        id="verifyButton"
+                    >
                         Verify Code
                     </button>
 
                 </form>
 
 
+                <!-- OTP EXPIRY COUNTDOWN -->
+
+                <div
+                    class="otp-expiry-timer"
+                    id="otpExpiryTimer"
+                    data-seconds="{{ otp_remaining_seconds }}"
+                >
+
+                    {% if otp_remaining_seconds > 0 %}
+
+                        Code expires in
+                        <strong id="otpCountdown">05:00</strong>
+
+                    {% else %}
+
+                        <strong id="otpCountdown">
+                            {{ otp_status }}
+                        </strong>
+
+                    {% endif %}
+
+                </div>
+
+
                 <!-- RESEND OTP SECTION -->
 
-                <div class="auth-resend-section">
+                <div
+                    class="auth-resend-section"
+                    id="otpResendSection"
+                    data-seconds="{{ otp_resend_seconds }}"
+                >
 
                     <p>Didn't receive the code?</p>
 
-                    <button
-                        type="button"
-                        class="auth-resend-button"
-                        disabled
-                    >
-                        Resend Code in 60 seconds
-                    </button>
+                    <form method="POST" action="{% url 'accounts:resend_otp' %}">
+
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="auth-resend-button"
+                            id="resendButton"
+                            {% if otp_resend_seconds > 0 %}disabled{% endif %}
+                        >
+
+                            {% if otp_resend_seconds > 0 %}
+                                Resend Code in {{ otp_resend_seconds }} seconds
+                            {% else %}
+                                Resend Code
+                            {% endif %}
+
+                        </button>
+
+                    </form>
 
                 </div>
 
@@ -161,6 +206,116 @@
     <!-- ================= POPUP NOTIFICATION JS ================= -->
 
     <script src="{% static 'storefront/js/notifications.js' %}"></script>
+
+
+    <!-- ================= OTP COUNTDOWN JS ================= -->
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const expiryContainer = document.getElementById("otpExpiryTimer");
+            const countdownDisplay = document.getElementById("otpCountdown");
+            const verifyButton = document.getElementById("verifyButton");
+
+            const resendSection = document.getElementById("otpResendSection");
+            const resendButton = document.getElementById("resendButton");
+
+            let expirySeconds = parseInt(
+                expiryContainer.dataset.seconds || "0",
+                10
+            );
+
+            let resendSeconds = parseInt(
+                resendSection.dataset.seconds || "0",
+                10
+            );
+
+
+            // Format seconds into MM:SS
+            function formatTime(seconds) {
+
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+
+                return (
+                    String(minutes).padStart(2, "0") +
+                    ":" +
+                    String(remainingSeconds).padStart(2, "0")
+                );
+            }
+
+
+            // OTP expiry countdown
+            function updateExpiryCountdown() {
+
+                if (expirySeconds <= 0) {
+
+                    countdownDisplay.textContent = "OTP Expired";
+
+                    verifyButton.disabled = true;
+
+                    return;
+                }
+
+                countdownDisplay.textContent = formatTime(expirySeconds);
+
+                expirySeconds--;
+
+                if (expirySeconds < 0) {
+                    expirySeconds = 0;
+                }
+            }
+
+
+            // Resend OTP countdown
+            function updateResendCountdown() {
+
+                if (resendSeconds <= 0) {
+
+                    resendButton.disabled = false;
+                    resendButton.textContent = "Resend Code";
+
+                    return;
+                }
+
+                resendButton.disabled = true;
+
+                resendButton.textContent =
+                    "Resend Code in " + resendSeconds + " seconds";
+
+                resendSeconds--;
+            }
+
+
+            // Initial display
+            if (expirySeconds <= 0) {
+
+                countdownDisplay.textContent =
+                    countdownDisplay.textContent || "OTP Expired";
+
+                verifyButton.disabled = true;
+
+            } else {
+
+                countdownDisplay.textContent = formatTime(expirySeconds);
+            }
+
+            updateResendCountdown();
+
+
+            // Update both timers every second
+            setInterval(function () {
+
+                updateExpiryCountdown();
+
+                updateResendCountdown();
+
+            }, 1000);
+
+        });
+
+    </script>
 
 </body>
 </html>

@@ -5,6 +5,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'storefront/css/shop.css' %}">
 {% endblock %}
+
 {% block content %}
 
 <!-- Shop Banner -->
@@ -26,265 +27,303 @@
 
         <!-- Filter Sidebar -->
         <aside class="shop-sidebar" id="shopSidebar">
-<div class="filter-heading">
 
-    <h3>Filters</h3>
+            <div class="filter-heading">
 
-    <div class="filter-heading-actions">
+                <h3>Filters</h3>
 
-        <a href="{% url 'storefront:shop' %}{% if search_query %}?q={{ search_query|urlencode }}{% endif %}"
-        class="reset-filters">
-            Reset All
-        </a>
-        <button type="button"
-                class="close-filter-drawer"
-                id="closeFilterDrawer"
-                aria-label="Close filters">
-            <i class="fa-solid fa-xmark"></i>
-        </button>
+                <div class="filter-heading-actions">
 
-    </div>
+                    <a href="{% url 'storefront:shop' %}{% if search_query %}?q={{ search_query|urlencode }}{% endif %}"
+                       class="reset-filters">
+                        Reset All
+                    </a>
 
-</div>
+                    <button type="button"
+                            class="close-filter-drawer"
+                            id="closeFilterDrawer"
+                            aria-label="Close filters">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
 
-<!-- Sorting -->
-<div class="filter-group">
-    <h3>Sort By</h3>
+                </div>
 
-<form method="GET" id="sortForm">
-
-    <input type="hidden" name="q" value="{{ search_query }}">
-
-    {% for category_id in selected_categories %}
-        <input type="hidden" name="category" value="{{ category_id }}">
-    {% endfor %}
-
-    <input type="hidden" name="sort" value="{{ sort_by }}">
-    <input type="hidden" name="min_price" value="{{ min_price }}">
-    <input type="hidden" name="max_price" value="{{ max_price }}">
-    <input type="hidden" name="availability" value="{{ availability }}">
+            </div>
 
 
-        <select name="sort"
-                id="sortProducts"
-                onchange="this.form.submit()">
+            <!-- Sorting -->
+            <div class="filter-group">
 
-            <option value="newest"
-                {% if sort_by == "newest" %}selected{% endif %}>
-                Newest First
-            </option>
+                <h3>Sort By</h3>
 
-            <option value="oldest"
-                {% if sort_by == "oldest" %}selected{% endif %}>
-                Oldest First
-            </option>
+                <form method="GET" id="sortForm">
 
-            <option value="price_low"
-                {% if sort_by == "price_low" %}selected{% endif %}>
-                Price: Low to High
-            </option>
+                    <input type="hidden" name="q" value="{{ search_query }}">
+                    <input type="hidden" name="min_price" value="{{ min_price }}">
+                    <input type="hidden" name="max_price" value="{{ max_price }}">
+                    <input type="hidden" name="availability" value="{{ availability }}">
+                    <input type="hidden" name="per_page" value="{{ per_page }}">
 
-            <option value="price_high"
-                {% if sort_by == "price_high" %}selected{% endif %}>
-                Price: High to Low
-            </option>
+                    {% for category_id in selected_categories %}
+                        <input type="hidden" name="category" value="{{ category_id }}">
+                    {% endfor %}
 
-            <option value="name_az"
-                {% if sort_by == "name_az" %}selected{% endif %}>
-                Name: A to Z
-            </option>
+                    <select name="sort"
+                            id="sortProducts"
+                            onchange="this.form.submit()">
 
-            <option value="name_za"
-                {% if sort_by == "name_za" %}selected{% endif %}>
-                Name: Z to A
-            </option>
+                        <option value="newest"
+                            {% if sort_by == "newest" %}selected{% endif %}>
+                            Newest First
+                        </option>
 
-        </select>
+                        <option value="oldest"
+                            {% if sort_by == "oldest" %}selected{% endif %}>
+                            Oldest First
+                        </option>
 
-    </form>
-</div>
+                        <option value="price_low"
+                            {% if sort_by == "price_low" %}selected{% endif %}>
+                            Price: Low to High
+                        </option>
 
+                        <option value="price_high"
+                            {% if sort_by == "price_high" %}selected{% endif %}>
+                            Price: High to Low
+                        </option>
 
-<div class="filter-group">
-    <h3>Categories</h3>
+                        <option value="name_az"
+                            {% if sort_by == "name_az" %}selected{% endif %}>
+                            Name: A to Z
+                        </option>
 
-    <form method="GET" id="categoryFilterForm">
+                        <option value="name_za"
+                            {% if sort_by == "name_za" %}selected{% endif %}>
+                            Name: Z to A
+                        </option>
 
-        <input type="hidden" name="q" value="{{ search_query }}">
-        <input type="hidden" name="sort" value="{{ sort_by }}">
-        <input type="hidden" name="per_page" value="{{ per_page }}">
+                    </select>
 
-        {% for category in categories %}
+                </form>
 
-            <label>
-                <input
-                    type="checkbox"
-                    name="category"
-                    value="{{ category.id }}"
-                    {% if category.id|stringformat:"s" in selected_categories %}checked{% endif %}
-                    onchange="this.form.submit()"
-                >
-
-                {{ category.name }}
-            </label>
-
-        {% empty %}
-            <p>No categories available.</p>
-        {% endfor %}
-
-    </form>
-</div>
+            </div>
 
 
+            <!-- Categories -->
+            <div class="filter-group">
 
-<div class="filter-group">
-    <h3>Price Range</h3>
+                <h3>Categories</h3>
 
-    <form method="GET" id="priceFilterForm">
+                <form method="GET" id="categoryFilterForm">
 
-        <input type="hidden" name="q" value="{{ search_query }}">
-        <input type="hidden" name="sort" value="{{ sort_by }}">
-        <input type="hidden" name="per_page" value="{{ per_page }}">
+                    <input type="hidden" name="q" value="{{ search_query }}">
+                    <input type="hidden" name="sort" value="{{ sort_by }}">
+                    <input type="hidden" name="per_page" value="{{ per_page }}">
+                    <input type="hidden" name="min_price" value="{{ min_price }}">
+                    <input type="hidden" name="max_price" value="{{ max_price }}">
+                    <input type="hidden" name="availability" value="{{ availability }}">
 
-        {% for category_id in selected_categories %}
-            <input type="hidden" name="category" value="{{ category_id }}">
-        {% endfor %}
+                    {% for category in categories %}
 
-        <input
-            type="number"
-            name="min_price"
-            placeholder="Minimum price"
-            value="{{ min_price }}"
-            min="0"
-            step="0.01"
-        >
+                        <label>
 
-        <input
-            type="number"
-            name="max_price"
-            placeholder="Maximum price"
-            value="{{ max_price }}"
-            min="0"
-            step="0.01"
-        >
+                            <input
+                                type="checkbox"
+                                name="category"
+                                value="{{ category.id }}"
+                                {% if category.id|stringformat:"s" in selected_categories %}checked{% endif %}
+                                onchange="this.form.submit()"
+                            >
 
-        <button type="submit" class="price-filter-button">
-            Apply Price
-        </button>
+                            {{ category.name }}
 
-    </form>
-</div>
+                        </label>
+
+                    {% empty %}
+
+                        <p>No categories available.</p>
+
+                    {% endfor %}
+
+                </form>
+
+            </div>
 
 
-            
-<div class="filter-group">
-    <h3>Availability</h3>
+            <!-- Price Range -->
+            <div class="filter-group">
 
-    <form method="GET" id="availabilityFilterForm">
+                <h3>Price Range</h3>
 
-        <input type="hidden" name="q" value="{{ search_query }}">
-        <input type="hidden" name="sort" value="{{ sort_by }}">
-        <input type="hidden" name="per_page" value="{{ per_page }}">
-        <input type="hidden" name="min_price" value="{{ min_price }}">
-        <input type="hidden" name="max_price" value="{{ max_price }}">
+                <form method="GET" id="priceFilterForm">
 
-        {% for category_id in selected_categories %}
-            <input type="hidden" name="category" value="{{ category_id }}">
-        {% endfor %}
+                    <input type="hidden" name="q" value="{{ search_query }}">
+                    <input type="hidden" name="sort" value="{{ sort_by }}">
+                    <input type="hidden" name="per_page" value="{{ per_page }}">
+                    <input type="hidden" name="availability" value="{{ availability }}">
 
-        <label>
-            <input
-                type="radio"
-                name="availability"
-                value="in_stock"
-                {% if availability == "in_stock" %}checked{% endif %}
-                onchange="this.form.submit()"
-            >
-            In Stock
-        </label>
+                    {% for category_id in selected_categories %}
+                        <input type="hidden" name="category" value="{{ category_id }}">
+                    {% endfor %}
 
-        <label>
-            <input
-                type="radio"
-                name="availability"
-                value="out_of_stock"
-                {% if availability == "out_of_stock" %}checked{% endif %}
-                onchange="this.form.submit()"
-            >
-            Out of Stock
-        </label>
+                    <input
+                        type="number"
+                        name="min_price"
+                        placeholder="Minimum price"
+                        value="{{ min_price }}"
+                        min="0"
+                        step="0.01"
+                    >
 
-        <label>
-            <input
-                type="radio"
-                name="availability"
-                value=""
-                {% if not availability %}checked{% endif %}
-                onchange="this.form.submit()"
-            >
-            All Products
-        </label>
+                    <input
+                        type="number"
+                        name="max_price"
+                        placeholder="Maximum price"
+                        value="{{ max_price }}"
+                        min="0"
+                        step="0.01"
+                    >
 
-    </form>
-</div>
+                    <button type="submit" class="price-filter-button">
+                        Apply Price
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- Availability -->
+            <div class="filter-group">
+
+                <h3>Availability</h3>
+
+                <form method="GET" id="availabilityFilterForm">
+
+                    <input type="hidden" name="q" value="{{ search_query }}">
+                    <input type="hidden" name="sort" value="{{ sort_by }}">
+                    <input type="hidden" name="per_page" value="{{ per_page }}">
+                    <input type="hidden" name="min_price" value="{{ min_price }}">
+                    <input type="hidden" name="max_price" value="{{ max_price }}">
+
+                    {% for category_id in selected_categories %}
+                        <input type="hidden" name="category" value="{{ category_id }}">
+                    {% endfor %}
+
+                    <label>
+
+                        <input
+                            type="radio"
+                            name="availability"
+                            value="in_stock"
+                            {% if availability == "in_stock" %}checked{% endif %}
+                            onchange="this.form.submit()"
+                        >
+
+                        In Stock
+
+                    </label>
+
+                    <label>
+
+                        <input
+                            type="radio"
+                            name="availability"
+                            value="out_of_stock"
+                            {% if availability == "out_of_stock" %}checked{% endif %}
+                            onchange="this.form.submit()"
+                        >
+
+                        Out of Stock
+
+                    </label>
+
+                    <label>
+
+                        <input
+                            type="radio"
+                            name="availability"
+                            value=""
+                            {% if not availability %}checked{% endif %}
+                            onchange="this.form.submit()"
+                        >
+
+                        All Products
+
+                    </label>
+
+                </form>
+
+            </div>
 
         </aside>
 
 
         <!-- Mobile Filter Drawer Overlay -->
-<div class="filter-drawer-overlay"
-     id="filterDrawerOverlay">
-</div>
+        <div class="filter-drawer-overlay"
+             id="filterDrawerOverlay">
+        </div>
+
 
         <!-- Product Listing -->
         <div class="shop-products-area">
 
             <div class="shop-products-header">
+
                 {% if search_query %}
+
                     <h2>Search Results for "{{ search_query }}"</h2>
+
                 {% else %}
+
                     <h2>Our Products</h2>
+
                 {% endif %}
 
-                
-            <div class="shop-controls">
-                <button type="button"
-                        class="mobile-filter-button"
-                        id="mobileFilterToggle">
-                    <i class="fa-solid fa-sliders"></i>
-                    Filter & Sort
-                </button>
-                <label for="productsPerPage">Show:</label>
 
-                <form method="GET" id="perPageForm">
+                <div class="shop-controls">
 
-                    <input type="hidden" name="q" value="{{ search_query }}">
-                    <input type="hidden" name="sort" value="{{ sort_by }}">
-            
-                    {% for category_id in selected_categories %}
-                        <input type="hidden" name="category" value="{{ category_id }}">
-                    {% endfor %}
+                    <button type="button"
+                            class="mobile-filter-button"
+                            id="mobileFilterToggle">
 
-                    <input type="hidden" name="min_price" value="{{ min_price }}">
-                    <input type="hidden" name="max_price" value="{{ max_price }}">
-                    <input type="hidden" name="availability" value="{{ availability }}">
+                        <i class="fa-solid fa-sliders"></i>
+                        Filter & Sort
 
-                    <select name="per_page"
-                            id="productsPerPage"
-                            onchange="this.form.submit()">
+                    </button>
 
-                        {% for option in per_page_options %}
-                            <option value="{{ option }}"
-                                {% if per_page == option %}selected{% endif %}>
-                                {{ option }} products
-                            </option>
+                    <label for="productsPerPage">Show:</label>
+
+                    <form method="GET" id="perPageForm">
+
+                        <input type="hidden" name="q" value="{{ search_query }}">
+                        <input type="hidden" name="sort" value="{{ sort_by }}">
+                        <input type="hidden" name="min_price" value="{{ min_price }}">
+                        <input type="hidden" name="max_price" value="{{ max_price }}">
+                        <input type="hidden" name="availability" value="{{ availability }}">
+
+                        {% for category_id in selected_categories %}
+                            <input type="hidden" name="category" value="{{ category_id }}">
                         {% endfor %}
 
-                    </select> 
+                        <select name="per_page"
+                                id="productsPerPage"
+                                onchange="this.form.submit()">
 
-                </form>
+                            {% for option in per_page_options %}
 
-            </div>
+                                <option value="{{ option }}"
+                                    {% if per_page == option %}selected{% endif %}>
+                                    {{ option }} products
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </form>
+
+                </div>
 
             </div>
 
@@ -299,31 +338,38 @@
                         <div class="shop-product-image">
 
                             {% if product.main_image %}
-                            <a href="{% url 'storefront:product_detail' product.slug %}">
-                                <img src="{{ product.main_image.url }}"
-                                     alt="{{ product.name }}">
-                            </a>
+
+                                <a href="{% url 'storefront:product_detail' product.slug %}">
+
+                                    <img src="{{ product.main_image.url }}"
+                                         alt="{{ product.name }}">
+
+                                </a>
+
                             {% else %}
+
                                 <div class="product-image-placeholder">
                                     No Image Available
                                 </div>
+
                             {% endif %}
 
+
                             {% if product.discount_percentage > 0 %}
+
                                 <span class="product-discount">
                                     {{ product.discount_percentage }}% OFF
                                 </span>
+
                             {% endif %}
 
-                            
-                            
 
-                           
+                            <!-- Wishlist Button -->
                             {% if product.id in wishlist_product_ids %}
 
                                 <form method="POST"
-                                    action="{% url 'wishlist:remove_wishlist' product.id %}"
-                                    class="shop-wishlist-form">
+                                      action="{% url 'wishlist:remove_wishlist' product.id %}"
+                                      class="shop-wishlist-form">
 
                                     {% csrf_token %}
 
@@ -340,8 +386,8 @@
                             {% else %}
 
                                 <form method="POST"
-                                    action="{% url 'wishlist:add_wishlist' product.id %}"
-                                    class="shop-wishlist-form">
+                                      action="{% url 'wishlist:add_wishlist' product.id %}"
+                                      class="shop-wishlist-form">
 
                                     {% csrf_token %}
 
@@ -357,16 +403,18 @@
 
                             {% endif %}
 
-
-
-
                         </div>
 
 
+                        <!-- Product Information -->
                         <div class="shop-product-info">
+
                             <a href="{% url 'storefront:product_detail' product.slug %}">
                                 <h3>{{ product.name }}</h3>
                             </a>
+
+
+                            <!-- Product Price -->
                             <div class="product-price">
 
                                 <span class="selling-price">
@@ -374,37 +422,45 @@
                                 </span>
 
                                 {% if product.discount_percentage > 0 %}
+
                                     <span class="original-price">
                                         ₹{{ product.original_price }}
                                     </span>
+
                                 {% endif %}
 
                             </div>
-                            
-{% if product.stock > 0 %}
 
-    <form method="POST"
-          action="{% url 'cart:add_to_cart' product.id %}"
-          class="shop-add-cart-form">
 
-        {% csrf_token %}
+                            <!-- Add to Cart / Stock Status -->
+                            {% if product.stock > 0 %}
 
-        <input type="hidden" name="quantity" value="1">
+                                <form method="POST"
+                                      action="{% url 'cart:add_to_cart' product.id %}"
+                                      class="shop-add-cart-form">
 
-        <button type="submit" class="add-to-bag-button">
-            <i class="fa-solid fa-bag-shopping"></i>
-            Add to Bag
-        </button>
+                                    {% csrf_token %}
 
-    </form>
+                                    <input type="hidden"
+                                           name="quantity"
+                                           value="1">
 
-{% else %}
+                                    <button type="submit" class="add-to-bag-button">
 
-    <span class="out-of-stock-badge">
-        Out of Stock
-    </span>
+                                        <i class="fa-solid fa-bag-shopping"></i>
+                                        Add to Bag
 
-{% endif %}
+                                    </button>
+
+                                </form>
+
+                            {% else %}
+
+                                <span class="out-of-stock-badge">
+                                    Out of Stock
+                                </span>
+
+                            {% endif %}
 
                         </div>
 
@@ -413,66 +469,87 @@
                 {% empty %}
 
                     <div class="no-products">
-                    {% if search_query %}
-                        <h3>No Products Found</h3>
-                        <p>
-                            Sorry, we couldn't find any products matching
-                            "{{ search_query }}".
-                        </p>
-                        <a href="{% url 'storefront:shop' %}">
-                            View All Products
-                        </a>
-                    {% else %}
-                        <h3>No Products Available</h3>
-                        <p>
-                            We are preparing something special for you.
-                        </p>
-                    {% endif %}
-                </div>
+
+                        {% if search_query %}
+
+                            <h3>No Products Found</h3>
+
+                            <p>
+                                Sorry, we couldn't find any products matching
+                                "{{ search_query }}".
+                            </p>
+
+                            <a href="{% url 'storefront:shop' %}">
+                                View All Products
+                            </a>
+
+                        {% else %}
+
+                            <h3>No Products Available</h3>
+
+                            <p>
+                                We are preparing something special for you.
+                            </p>
+
+                        {% endif %}
+
+                    </div>
 
                 {% endfor %}
 
             </div>
+
+
             <!-- Pagination -->
-{% if page_obj.has_other_pages %}
+            {% if page_obj.has_other_pages %}
 
-    <div class="shop-pagination">
+                <div class="shop-pagination">
 
-        {% if page_obj.has_previous %}
-            <a href="{% querystring page=page_obj.previous_page_number %}"
-               aria-label="Previous page">
-                <i class="fa-solid fa-chevron-left"></i>
-            </a>
-        {% endif %}
+                    {% if page_obj.has_previous %}
 
-        {% for page_number in page_obj.paginator.page_range %}
+                        <a href="{% querystring page=page_obj.previous_page_number %}"
+                           aria-label="Previous page">
 
-            {% if page_obj.number == page_number %}
+                            <i class="fa-solid fa-chevron-left"></i>
 
-                <span class="current-page">
-                    {{ page_number }}
-                </span>
+                        </a>
 
-            {% else %}
+                    {% endif %}
 
-                <a href="{% querystring page=page_number %}">
-                    {{ page_number }}
-                </a>
+
+                    {% for page_number in page_obj.paginator.page_range %}
+
+                        {% if page_obj.number == page_number %}
+
+                            <span class="current-page">
+                                {{ page_number }}
+                            </span>
+
+                        {% else %}
+
+                            <a href="{% querystring page=page_number %}">
+                                {{ page_number }}
+                            </a>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+
+                    {% if page_obj.has_next %}
+
+                        <a href="{% querystring page=page_obj.next_page_number %}"
+                           aria-label="Next page">
+
+                            <i class="fa-solid fa-chevron-right"></i>
+
+                        </a>
+
+                    {% endif %}
+
+                </div>
 
             {% endif %}
-
-        {% endfor %}
-
-        {% if page_obj.has_next %}
-            <a href="{% querystring page=page_obj.next_page_number %}"
-               aria-label="Next page">
-                <i class="fa-solid fa-chevron-right"></i>
-            </a>
-        {% endif %}
-
-    </div>
-
-{% endif %}
 
         </div>
 

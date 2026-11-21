@@ -185,6 +185,7 @@ class CustomerCreateForm(forms.Form):
         return cleaned_data
 
 
+
 # ==========================================
 # UPDATE CUSTOMER FORM
 # ==========================================
@@ -200,22 +201,13 @@ class CustomerUpdateForm(forms.Form):
         })
     )
 
-    email = forms.EmailField(
-        max_length=254,
-        required=True,
-        widget=forms.EmailInput(attrs={
-            "class": "customer-input",
-            "placeholder": "Enter email address",
-        })
-    )
-
     profile_image = forms.ImageField(
-    required=False,
-    widget=forms.ClearableFileInput(attrs={
-        "class": "form-control",
-        "data-crop-image": "true",
-        "accept": "image/*",
-    })
+        required=False,
+        widget=forms.ClearableFileInput(attrs={
+            "class": "form-control",
+            "data-crop-image": "true",
+            "accept": "image/*",
+        })
     )
 
     is_active = forms.BooleanField(
@@ -228,19 +220,3 @@ class CustomerUpdateForm(forms.Form):
     def __init__(self, *args, customer=None, **kwargs):
         self.customer = customer
         super().__init__(*args, **kwargs)
-
-    def clean_email(self):
-        email = self.cleaned_data["email"].strip().lower()
-
-        existing_user = User.objects.filter(
-            email__iexact=email
-        ).exclude(
-            pk=self.customer.pk
-        )
-
-        if existing_user.exists():
-            raise forms.ValidationError(
-                "Another account already uses this email."
-            )
-
-        return email
