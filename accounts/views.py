@@ -320,7 +320,6 @@ def customer_signup(request):
 
 
 
-
 def customer_login(request):
 
     if request.user.is_authenticated:
@@ -364,6 +363,7 @@ def customer_login(request):
 
             if user is not None:
 
+                # Login signal automatically processes pending cart items.
                 login(request, user)
 
                 messages.success(
@@ -371,50 +371,6 @@ def customer_login(request):
                     "Welcome back to Shristi!",
                     extra_tags="login"
                 )
-
-                # Retrieve the product requested before login.
-                pending_add = request.session.pop(
-                    "pending_add_to_cart",
-                    None
-                )
-
-                if pending_add:
-
-                    product = Product.objects.filter(
-                        id=pending_add.get("product_id"),
-                        is_active=True,
-                        category__is_active=True
-                    ).first()
-
-                    if product:
-                        try:
-                            from cart.cart import Cart
-                            from wishlist.services import remove_from_wishlist
-
-                            cart = Cart(request)
-
-                            cart.add(
-                                product,
-                                pending_add.get("quantity", 1)
-                            )
-
-                            remove_from_wishlist(request, product)
-
-                            messages.success(
-                                request,
-                                f"{product.name} added to your shopping bag."
-                            )
-
-                            return redirect("cart:cart_detail")
-
-                        except (ValueError, TypeError) as error:
-                            messages.error(request, str(error))
-
-                    else:
-                        messages.error(
-                            request,
-                            "This product is no longer available."
-                        )
 
                 return redirect("storefront:home")
 
@@ -425,6 +381,7 @@ def customer_login(request):
 
     # Display login page for GET requests and failed login attempts.
     return render(request, "accounts/login.html")
+
 
 
 
