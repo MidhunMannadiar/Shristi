@@ -1,0 +1,237 @@
+
+{% extends "shristi_admin/base.html" %}
+{% load static %}
+
+{% block title %}Delete Category | Shristi Admin{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'admin/css/category_delete.css' %}">
+
+<div class="category-delete-page">
+
+    <!-- Page Header -->
+    <div class="category-delete-header">
+        <div>
+            <h1>Delete Category</h1>
+            <p>Review the category and its associated products before deletion.</p>
+        </div>
+
+        <a href="{% url 'products:category_list' %}"
+           class="category-cancel-btn">
+            Back to Categories
+        </a>
+    </div>
+
+
+    <!-- Category Information -->
+    <div class="category-delete-card">
+
+        <div class="category-info">
+
+            {% if category.image %}
+                <img src="{{ category.image.url }}"
+                     alt="{{ category.name }}"
+                     class="category-delete-image">
+            {% else %}
+                <div class="category-delete-image-placeholder">
+                    No Image
+                </div>
+            {% endif %}
+
+            <div class="category-info-details">
+
+                <h2>{{ category.name }}</h2>
+
+                <p>
+                    {{ category.description|default:"No description available." }}
+                </p>
+
+                <span class="category-product-count">
+                    {{ product_count }} Product{{ product_count|pluralize }}
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- Category Deletion Status -->
+        <div class="category-delete-warning">
+
+            {% if product_count > 0 %}
+
+                <h3>Are you sure you want to delete "{{ category.name }}"?</h3>
+
+                <p>
+                    This category currently contains
+                    <strong>
+                        {{ product_count }} product{{ product_count|pluralize }}.
+                    </strong>
+                    You can edit each product and move it to another category
+                    before deleting this category.
+                </p>
+
+            {% else %}
+
+                <h3>"{{ category.name }}" is now empty!</h3>
+
+                <p>
+                    This category has no associated products.
+                    You can now safely delete the empty category.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- Associated Products -->
+    {% if product_count > 0 %}
+
+        <div class="category-products-section">
+
+            <div class="category-section-header">
+
+                <h2>Associated Products</h2>
+
+                <p>
+                    Move these products to another category if you want to keep them.
+                </p>
+
+            </div>
+
+
+            <div class="category-products-list">
+
+                {% for product in products %}
+
+                    <div class="category-product-item">
+
+                        <!-- Product Information -->
+                        <div class="category-product-info">
+
+                            {% if product.main_image %}
+
+                                <img src="{{ product.main_image.url }}"
+                                     alt="{{ product.name }}"
+                                     class="category-product-image">
+
+                            {% else %}
+
+                                <div class="category-product-image-placeholder">
+                                    No Image
+                                </div>
+
+                            {% endif %}
+
+
+                            <div class="category-product-details">
+
+                                <h3>{{ product.name }}</h3>
+
+                                <p>SKU: {{ product.sku }}</p>
+
+                                <p>
+                                    Price: ₹{{ product.selling_price }}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Edit Product Action -->
+                        <div class="category-product-actions">
+
+                            {% url 'products:category_delete' category.pk as return_url %}
+
+                            <a
+                                href="{% url 'products:product_update' product.pk %}?return_to={{ return_url|urlencode }}"
+                                class="category-edit-btn"
+                            >
+                                Edit Product
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- Permanent Deletion Warning -->
+    <div class="category-permanent-warning">
+
+        {% if product_count > 0 %}
+
+            <h3>Danger: Permanent Deletion</h3>
+
+            <p>
+                If you continue, the category and all
+                <strong>
+                    {{ product_count }} associated product{{ product_count|pluralize }}
+                </strong>
+                will be permanently deleted, including their uploaded
+                product images and gallery images.
+
+                <strong>This action cannot be undone.</strong>
+            </p>
+
+        {% else %}
+
+            <h3>Confirm Empty Category Deletion</h3>
+
+            <p>
+                You are about to permanently delete this empty category.
+                This action cannot be undone.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- Confirmation Actions -->
+    <div class="category-delete-actions">
+
+        <a href="{% url 'products:category_list' %}"
+           class="category-cancel-btn">
+            Cancel
+        </a>
+
+
+        <form method="POST"
+              action="{% url 'products:category_delete' category.pk %}">
+
+            {% csrf_token %}
+
+            <input type="hidden"
+                   name="confirm_delete"
+                   value="yes">
+
+            <button type="submit" class="category-danger-btn">
+
+                {% if product_count > 0 %}
+                    Delete Category & Products
+                {% else %}
+                    Delete Empty Category
+                {% endif %}
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

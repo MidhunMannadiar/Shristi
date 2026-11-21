@@ -15,6 +15,9 @@
     <link rel="stylesheet" href="{% static 'admin/css/customer.css' %}">
     <link rel="stylesheet" href="{% static 'admin/css/categories.css' %}">
 
+    <!-- Toast Notification CSS -->
+    <link rel="stylesheet" href="{% static 'admin/css/toast.css' %}">
+
     <!-- Cropper.js Local CSS -->
     <link rel="stylesheet" href="{% static 'admin/css/cropper.min.css' %}">
 
@@ -124,6 +127,55 @@
 
     </div>
 
+
+    <!-- Global Toast Notifications -->
+    {% if messages %}
+
+        <div class="notification-container"
+             id="notificationContainer"
+             aria-live="polite"
+             aria-atomic="false">
+
+            {% for message in messages %}
+
+                <div class="notification notification-{{ message.tags }}"
+                     role="alert">
+
+                    <span class="notification-icon">
+
+                        {% if 'success' in message.tags %}
+                            ✓
+                        {% elif 'error' in message.tags %}
+                            !
+                        {% elif 'warning' in message.tags %}
+                            ⚠
+                        {% else %}
+                            i
+                        {% endif %}
+
+                    </span>
+
+                    <span class="notification-text">
+                        {{ message }}
+                    </span>
+
+                    <button
+                        type="button"
+                        class="notification-close"
+                        aria-label="Close notification"
+                    >
+                        &times;
+                    </button>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+
     <!-- Cropper.js Local JavaScript -->
     <script src="{% static 'admin/js/cropper/cropper.min.js' %}"></script>
 
@@ -132,6 +184,9 @@
 
     <!-- Admin Dashboard JavaScript -->
     <script src="{% static 'admin/js/admin_dashboard.js' %}"></script>
+
+    <!-- Toast Notification JavaScript -->
+    <script src="{% static 'admin/js/toast.js' %}"></script>
 
     {% block extra_js %}{% endblock %}
 

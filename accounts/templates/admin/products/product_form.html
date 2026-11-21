@@ -18,7 +18,13 @@
 </div>
 
 <form method="POST" enctype="multipart/form-data">
-
+{% if return_to %}
+    <input
+        type="hidden"
+        name="return_to"
+        value="{{ return_to }}"
+    >
+{% endif %}
     {% csrf_token %}
 
     <!-- BASIC INFORMATION -->

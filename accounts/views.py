@@ -28,7 +28,7 @@ from django.core.validators import validate_email
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import update_session_auth_hash
 from products.models import Category, Product
-
+from django.db.models.deletion import ProtectedError
 
 User = get_user_model()
 
@@ -326,7 +326,7 @@ def customer_login(request):
         if request.user.is_admin:
             return redirect("accounts:admin_dashboard")
 
-        return redirect("storefront:home")
+        return redirect("storefront:shop")
 
     if request.method == "POST":
 
@@ -372,7 +372,7 @@ def customer_login(request):
                     extra_tags="login"
                 )
 
-                return redirect("storefront:home")
+                return redirect("storefront:shop")
 
         messages.error(
             request,
@@ -535,7 +535,7 @@ def verify_otp(request):
                         "This email address is already registered."
                     )
 
-                    return redirect("accounts:customer_profile")
+                    return redirect("storefront:shop")
 
                 with transaction.atomic():
 
@@ -553,7 +553,7 @@ def verify_otp(request):
                     "Your email address has been updated successfully."
                 )
 
-                return redirect("accounts:customer_profile")
+                return redirect("storefront:shop")
 
 
             # Complete signup verification
@@ -742,7 +742,7 @@ def set_password(request):
             "Your Shristi account has been created successfully!"
         )
 
-        return redirect("storefront:home")
+        return redirect("storefront:store")
 
     return render(
         request,

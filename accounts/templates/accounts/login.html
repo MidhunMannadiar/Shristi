@@ -134,7 +134,7 @@
 
                 <!-- ================= GOOGLE LOGIN ================= -->
 
-                <form method="POST" action="{% provider_login_url 'google' %}">
+                <form method="POST" action="{% provider_login_url 'google' next='/shop/' %}">
 
                     {% csrf_token %}
 

@@ -1,0 +1,140 @@
+
+/* Toast Notification Container */
+.notification-container {
+    position: fixed;
+    top: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99999;
+    width: min(420px, calc(100% - 30px));
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+}
+
+/* Individual Notification */
+.notification {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 16px 18px;
+    background: #ffffff;
+    border-radius: 9px;
+    border: 1px solid #e8e2da;
+    border-left: 5px solid #3b82f6;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
+    color: #49382c;
+    font-size: 14px;
+    line-height: 1.5;
+    pointer-events: auto;
+
+    animation: toastSlideIn 0.4s ease forwards;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* Notification Icon */
+.notification-icon {
+    width: 25px;
+    height: 25px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    font-weight: 700;
+    border-radius: 50%;
+}
+
+/* Notification Text */
+.notification-text {
+    flex: 1;
+    overflow-wrap: anywhere;
+}
+
+/* Close Button */
+.notification-close {
+    border: none;
+    background: transparent;
+    color: #786b60;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0 3px;
+    line-height: 1;
+}
+
+.notification-close:hover {
+    color: #49382c;
+}
+
+/* Success */
+.notification-success {
+    border-left-color: #16a34a;
+}
+
+.notification-success .notification-icon {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+/* Error */
+.notification-error {
+    border-left-color: #dc2626;
+}
+
+.notification-error .notification-icon {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* Warning */
+.notification-warning {
+    border-left-color: #f59e0b;
+}
+
+.notification-warning .notification-icon {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+/* Info */
+.notification-info {
+    border-left-color: #3b82f6;
+}
+
+.notification-info .notification-icon {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+/* Hide Animation */
+.notification.hide {
+    opacity: 0;
+    transform: translateY(-15px);
+    pointer-events: none;
+}
+
+/* Entrance Animation */
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .notification-container {
+        top: 15px;
+    }
+
+    .notification {
+        padding: 13px;
+        font-size: 13px;
+    }
+}

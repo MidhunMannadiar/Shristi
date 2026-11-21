@@ -11,6 +11,8 @@ from .models import Product, ProductImage
 from .forms import ProductForm, ProductImageFormSet
 from django.db import transaction
 from django.db.models import Q
+from django.db.models.deletion import ProtectedError
+from django.utils.http import url_has_allowed_host_and_scheme
 
 def admin_required(view_func):
     def wrapper(request, *args, **kwargs):
@@ -204,20 +206,104 @@ def category_remove_image(request, pk):
         pk=category.pk
     )
 
+
+
 @admin_required
-@require_POST
 def category_delete(request, pk):
 
     category = get_object_or_404(Category, pk=pk)
 
-    category.delete()
-
-    messages.success(
-        request,
-        "Category deleted successfully."
+    # Get all products belonging to this category
+    products = list(
+        category.products.prefetch_related("gallery_images").all()
     )
 
+    # Display the confirmation page
+    if request.method == "GET":
+
+        return render(
+            request,
+            "admin/categories/category_confirm_delete.html",
+            {
+                "category": category,
+                "products": products,
+                "product_count": len(products),
+            }
+        )
+
+    # Only allow POST for actual deletion
+    if request.method != "POST":
+        return redirect("products:category_list")
+
+    # Require explicit confirmation
+    if request.POST.get("confirm_delete") != "yes":
+        messages.error(
+            request,
+            "Please confirm the category deletion."
+        )
+        return redirect("products:category_list")
+
+    # Collect uploaded files before deleting database records
+    image_files = []
+
+    if category.image:
+        image_files.append(
+            (category.image.storage, category.image.name)
+        )
+
+    for product in products:
+
+        if product.main_image:
+            image_files.append(
+                (product.main_image.storage, product.main_image.name)
+            )
+
+        for gallery_image in product.gallery_images.all():
+
+            if gallery_image.image:
+                image_files.append(
+                    (gallery_image.image.storage, gallery_image.image.name)
+                )
+
+    try:
+
+        with transaction.atomic():
+
+            # Explicitly delete associated products
+            for product in products:
+                product.delete()
+
+            # Delete the category after its products
+            category.delete()
+
+            # Delete uploaded files only after successful DB commit
+            def delete_uploaded_files():
+
+                for storage, name in image_files:
+
+                    if storage.exists(name):
+                        storage.delete(name)
+
+            transaction.on_commit(delete_uploaded_files)
+
+        messages.success(
+            request,
+            "Category and all its associated products "
+            "were deleted successfully."
+        )
+
+    except ProtectedError:
+
+        messages.error(
+            request,
+            "Deletion was blocked because one or more products "
+            "are referenced by other records. "
+            "The category and products have not been deleted."
+        )
+
     return redirect("products:category_list")
+
+
 
 
 @admin_required
@@ -356,10 +442,25 @@ def product_create(request):
     )
 
 
+
 @admin_required
 def product_update(request, pk):
 
     product = get_object_or_404(Product, pk=pk)
+
+    # Preserve the category confirmation page URL
+    return_to = (
+        request.POST.get("return_to")
+        or request.GET.get("return_to", "")
+    )
+
+    # Allow only safe URLs within this website
+    if return_to and not url_has_allowed_host_and_scheme(
+        return_to,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure()
+    ):
+        return_to = ""
 
     if request.method == "POST":
 
@@ -385,7 +486,7 @@ def product_update(request, pk):
                 image.product = product
                 image.save()
 
-           # Collect gallery image files before deleting their records
+            # Collect gallery image files before deleting their records
             deleted_image_files = []
 
             for image in image_formset.deleted_objects:
@@ -397,8 +498,7 @@ def product_update(request, pk):
 
                 image.delete()
 
-
-            # Delete physical files after the database transaction commits
+            # Delete physical files after database transaction commits
             def delete_gallery_files():
 
                 for storage, name in deleted_image_files:
@@ -406,8 +506,16 @@ def product_update(request, pk):
                     if storage.exists(name):
                         storage.delete(name)
 
-
             transaction.on_commit(delete_gallery_files)
+
+            messages.success(
+                request,
+                "Product updated successfully."
+            )
+
+            # Return to the category confirmation page if requested
+            if return_to:
+                return redirect(return_to)
 
             return redirect("products:product_list")
 
@@ -424,6 +532,7 @@ def product_update(request, pk):
         "image_formset": image_formset,
         "page_title": "Edit Product",
         "product": product,
+        "return_to": return_to,
     }
 
     return render(
@@ -431,6 +540,7 @@ def product_update(request, pk):
         "admin/products/product_form.html",
         context
     )
+
 
 
 @admin_required
